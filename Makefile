@@ -21,14 +21,14 @@ LFLAGS=--specs=nosys.specs -Wl,--gc-sections -Wl,-Map=$(PROJECT).map -Tlink.ld
 %.o: %.c
 	$(TOOLCHAIN)gcc  $(CFLAGS) -c -o $@ $<
 
-$(PROJECT).out: $(OBJECTS)
-	$(TOOLCHAIN)gcc $(LFLAGS) $^ $(CFLAGS) -o $@
-
-$(PROJECT).bin: $(PROJECT).out
-	$(TOOLCHAIN)objcopy -O binary $< $@
-	
-$(PROJECT).hex: $(PROJECT).out
+$(PROJECT).hex: $(PROJECT).bin
 	$(TOOLCHAIN)objcopy -I binary -O ihex $< $@
+
+$(PROJECT).bin: $(PROJECT).elf
+	$(TOOLCHAIN)objcopy -O binary $< $@
+        
+$(PROJECT).elf: $(OBJECTS)
+	$(TOOLCHAIN)gcc $(LFLAGS) $^ $(CFLAGS) -o $@
 
 clean:
 	rm -f *.bin *.map *.elf *.out *.hex output.txt
