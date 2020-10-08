@@ -4,14 +4,7 @@
 #include "stdint.h"
 #include "stdbool.h"
 
-#include "zrf_clock.h"
 
-void zrf_delay_init(){
-
-	zrf_clock_start_hfclk();
-	
-	while(!zrf_clock_hfclk_started()){}
-}
 void zrf_delay_ms(uint32_t milliSeconds)
 {
         
