@@ -17,6 +17,30 @@ pub fn build(b: *Builder) !void {
     exe.addBuildOption(bool, "use_pine_gpio", gpio_layout);
     exe.install();
 
+    const bin = b.step("bin", "build binary file");
+    bin.dependOn(&exe.step);
+    bin.dependOn(&b.addSystemCommand(&[_][]const u8{
+        "llvm-objcopy",
+        "-I",
+        "elf32-littlearm",
+        "-O",
+        "binary",
+        "zig-cache/bin/ztime.elf",
+        "ztime.bin",
+    }).step);
+
+    const ihex = b.step("ihex", "build ihex file");
+    ihex.dependOn(bin);
+    ihex.dependOn(&b.addSystemCommand(&[_][]const u8{
+        "objcopy",
+        "-I",
+        "binary",
+        "-O",
+        "ihex",
+        "ztime.bin",
+        "ztime.ihex",
+    }).step);
+
     var main_tests = b.addTest("src/main.zig");
     main_tests.setBuildMode(mode);
 
