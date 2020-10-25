@@ -13,6 +13,18 @@ pub fn build(b: *Builder) !void {
     exe.setLinkerScriptPath("src/link.ld");
     exe.install();
 
+    const hex = b.step("hex", "Generate hex file");
+    hex.dependOn(&exe.step);
+    hex.dependOn(&b.addSystemCommand(&[_][]const u8{
+        "objcopy",
+        "-I",
+        "binary",
+        "-O",
+        "ihex",
+        "zig-cache/bin/ztime",
+        "ztime.hex",
+    }).step);
+
     var main_tests = b.addTest("src/main.zig");
     main_tests.setBuildMode(mode);
 

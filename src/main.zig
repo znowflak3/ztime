@@ -177,11 +177,11 @@ const pendSvHanlder = defaultHandler;
 const sysTickHandler = defaultHandler;
 
 /// Pine memory
-const ram = @intToPtr(*align(16) volatile [0x10000]u8, 0x20000000);
+const ram = @intToPtr(*align(16) volatile [0x5000]u8, 0x2000_0000);
 
 /// Entry point to the program as defined within the linker script
 export fn init() noreturn {
-    @call(.{ .stack = ram[0..] }, main, .{});
+    @call(.{ .stack = ram[0..0x800] }, main, .{});
     while (true) {}
 }
 
