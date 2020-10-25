@@ -130,7 +130,7 @@ const GpioPin = enum(u32) {
     battery_voltage = 0x5000077C,
 
     pub const Config = packed struct {
-        dir: packed enum(u1) { input, output },
+        direction: packed enum(u1) { input, output },
         input: packed enum(u1) { connect, disconnect },
         pull: packed enum(u2) { disabled, pulldown, pullup },
         unused1: u4 = 0,
@@ -145,10 +145,10 @@ const GpioPin = enum(u32) {
         },
         unused2: u5 = 0,
         sense: packed enum(u2) { disabled, high, low },
-        unused3: u13 = 0,
+        unused3: u14 = 0,
     };
 
-    pub fn config(self: GpioAddress, cfg: Config) void {
+    pub fn config(self: GpioPin, cfg: Config) void {
         const address = @intToPtr(*volatile u32, @enumToInt(self));
         address.* = @bitCast(u32, cfg);
     }
@@ -161,5 +161,13 @@ export fn init() callconv(.C) void {
 }
 
 pub fn main() void {
-    @intToPtr(*volatile u32, 0x50000744).* = 3;
+    const led: GpioPin = .p0_17;
+
+    led.config(.{
+        .direction = .output,
+        .input = .disconnect,
+        .pull = .disabled,
+        .drive = .s0s1,
+        .sense = .disabled,
+    });
 }
