@@ -1,0 +1,8 @@
+1080 807688 1603639529048927849 78002b4f3411bd47736f814ddca5ed8f /home/znowbolic/ztime/src/main.zig
+4646 954684 1603525833000000000 5452e00ad22d16fd85c758f83ca2fa3f /home/znowbolic/build/zig-linux-x86_64-0.6.0+91a1c20e7/lib/zig/std/std.zig
+20528 954871 1603525832000000000 b75c2a16cce68a9f794e432bee2f31fb /home/znowbolic/build/zig-linux-x86_64-0.6.0+91a1c20e7/lib/zig/std/builtin.zig
+13781 954875 1603525833000000000 668ec363237b77f5443a57ac0762fd1b /home/znowbolic/build/zig-linux-x86_64-0.6.0+91a1c20e7/lib/zig/std/start.zig
+54086 954939 1603525833000000000 b061a8e21a8a75d7cbe2a2adbb3f92c5 /home/znowbolic/build/zig-linux-x86_64-0.6.0+91a1c20e7/lib/zig/std/target.zig
+65840 954666 1603525833000000000 c1f41a6a502d676ed0c3608800eb4f6d /home/znowbolic/build/zig-linux-x86_64-0.6.0+91a1c20e7/lib/zig/std/target/arm.zig
+41787 954926 1603525832000000000 ff5e1ccaf3dc7c9e09a4abe4f52e4c9d /home/znowbolic/build/zig-linux-x86_64-0.6.0+91a1c20e7/lib/zig/std/math.zig
+29367 954873 1603525832000000000 8bb27f1a3a490a266af514c3469fea3e /home/znowbolic/build/zig-linux-x86_64-0.6.0+91a1c20e7/lib/zig/std/meta.zig
