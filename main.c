@@ -29,15 +29,15 @@
 #define ST7789_CMD_VSCSAD  0x37
 
 void SystemInit(void) {
-	
+
 }
 void zrf_st7789_hw_reset()
 {
-	zrf_gpio_clear_pin(LCD_SPIM_RESET_PIN);
-	zrf_delay_ms(15);
+    zrf_gpio_clear_pin(LCD_SPIM_RESET_PIN);
+    zrf_delay_ms(15);
 
-	zrf_gpio_set_pin(LCD_SPIM_RESET_PIN);
-	zrf_delay_ms(2);
+    zrf_gpio_set_pin(LCD_SPIM_RESET_PIN);
+    zrf_delay_ms(2);
 }
 void setCommandPin()
 {
@@ -69,7 +69,7 @@ void setWindow(uint8_t startX, uint8_t startY, uint8_t width, uint8_t height)
     zrf_spi_write(ST7789_CMD_CASET);
     setDataPin();
     zrf_spi_write_bytes(lcdCasetData, 4);
-    
+
     setCommandPin();
     zrf_spi_write(ST7789_CMD_RASET);
     setDataPin();
@@ -77,72 +77,72 @@ void setWindow(uint8_t startX, uint8_t startY, uint8_t width, uint8_t height)
 }
 int main(void) {
 
-	zrf_gpio_config_output_pin(17);
+    zrf_gpio_config_output_pin(17);
 
-	//zrf_delay_ms(5000);
+    //zrf_delay_ms(5000);
 
-	//zrf_gpio_set_pin(17);
+    //zrf_gpio_set_pin(17);
 
-	const int16_t screenSizeX = 240;
-    	const int16_t screenSizeY = 240;
+    const int16_t screenSizeX = 240;
+    const int16_t screenSizeY = 240;
 
-	zrf_gpio_config_output_pin(LCD_SPIM_DCX_PIN);
-	zrf_gpio_config_output_pin(LCD_SPIM_RESET_PIN);
-	zrf_spi_init(LCD_SPIM_SS_PIN, LCD_SPIM_MISO_PIN, LCD_SPIM_MOSI_PIN, LCD_SPIM_SCK_PIN);
-	zrf_delay_ms(50);
-	zrf_st7789_hw_reset();
-	
+    zrf_gpio_config_output_pin(LCD_SPIM_DCX_PIN);
+    zrf_gpio_config_output_pin(LCD_SPIM_RESET_PIN);
+    zrf_spi_init(LCD_SPIM_SS_PIN, LCD_SPIM_MISO_PIN, LCD_SPIM_MOSI_PIN, LCD_SPIM_SCK_PIN);
+    zrf_delay_ms(50);
+    zrf_st7789_hw_reset();
 
-    	// Send the commands
-    	setCommandPin();
-       	zrf_spi_write(ST7789_CMD_SWRESET);
-	zrf_delay_ms(150);
 
-    	zrf_spi_write(ST7789_CMD_SLPOUT);	
-	zrf_delay_ms(10);
+    // Send the commands
+    setCommandPin();
+    zrf_spi_write(ST7789_CMD_SWRESET);
+    zrf_delay_ms(150);
 
-	zrf_spi_write(ST7789_CMD_COLMOD);
-    	setDataPin();
-      	zrf_spi_write(0x55);
-	zrf_delay_ms(10);
+    zrf_spi_write(ST7789_CMD_SLPOUT);
+    zrf_delay_ms(10);
 
-    	setCommandPin();
-      	zrf_spi_write(ST7789_CMD_MADCTL);	
-	setDataPin();
-    	zrf_spi_write(0);
-	
-    	setWindow(0, 0, screenSizeX, screenSizeY);
+    zrf_spi_write(ST7789_CMD_COLMOD);
+    setDataPin();
+    zrf_spi_write(0x55);
+    zrf_delay_ms(10);
 
-    	setCommandPin();
-      	zrf_spi_write(ST7789_CMD_DISPON);
-	zrf_spi_write(ST7789_CMD_NORON);
-	zrf_spi_write(ST7789_CMD_INVON);
-	zrf_delay_ms(10);
+    setCommandPin();
+    zrf_spi_write(ST7789_CMD_MADCTL);
+    setDataPin();
+    zrf_spi_write(0);
 
-    	//write bg black
-    
-    	setCommandPin();
-	zrf_spi_write(ST7789_CMD_RAMWR);
-	setDataPin();
-	
-	uint16_t bgColor = ST77XX_GREEN;
-    	
-	uint8_t colorData[] = {
-        	(uint8_t)(bgColor >> 8),
-        	(uint8_t)(bgColor & 0xFF)
-    	};
-    	int sbs = 5000;
-	
-	zrf_gpio_set_pin(17);
+    setWindow(0, 0, screenSizeX, screenSizeY);
 
-    	for(int i = 0; i < sbs; i++){
-        	//APP_ERROR_CHECK(nrfx_spim_xfer(&lcdSpi, &xferData, 0));
-		//zrf_spi_write_bytes(colorData);
-    		zrf_spi_write((uint8_t)(bgColor >> 8));
-		zrf_spi_write((uint8_t)(bgColor & 0xFF));
-	}
+    setCommandPin();
+    zrf_spi_write(ST7789_CMD_DISPON);
+    zrf_spi_write(ST7789_CMD_NORON);
+    zrf_spi_write(ST7789_CMD_INVON);
+    zrf_delay_ms(10);
 
-	zrf_gpio_clear_pin(17);
+    //write bg black
 
-	 	
+    setCommandPin();
+    zrf_spi_write(ST7789_CMD_RAMWR);
+    setDataPin();
+
+    uint16_t bgColor = ST77XX_GREEN;
+
+    uint8_t colorData[] = {
+            (uint8_t)(bgColor >> 8),
+            (uint8_t)(bgColor & 0xFF)
+        };
+        int sbs = 5000;
+
+    zrf_gpio_set_pin(17);
+
+        for(int i = 0; i < sbs; i++){
+        //APP_ERROR_CHECK(nrfx_spim_xfer(&lcdSpi, &xferData, 0));
+        //zrf_spi_write_bytes(colorData);
+        zrf_spi_write((uint8_t)(bgColor >> 8));
+        zrf_spi_write((uint8_t)(bgColor & 0xFF));
+    }
+
+    zrf_gpio_clear_pin(17);
+
+
 }
