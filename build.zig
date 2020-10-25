@@ -3,9 +3,9 @@ const Builder = std.build.Builder;
 
 pub fn build(b: *Builder) !void {
     const mode = b.standardReleaseOptions();
-    const exe = b.addExecutable("ztime", "src/main.zig");
+    const exe = b.addExecutable("ztime.elf", "src/main.zig");
     exe.setTarget(try std.zig.CrossTarget.parse(.{
-        .arch_os_abi = "thumb-freestanding",
+        .arch_os_abi = "thumb-freestanding-eabi",
         .cpu_features = "cortex_m4",
     }));
     exe.setBuildMode(.ReleaseSmall);
@@ -16,13 +16,14 @@ pub fn build(b: *Builder) !void {
     const hex = b.step("hex", "Generate hex file");
     hex.dependOn(&exe.step);
     hex.dependOn(&b.addSystemCommand(&[_][]const u8{
-        "objcopy",
-        "-I",
-        "binary",
-        "-O",
-        "ihex",
-        "zig-cache/bin/ztime",
-        "ztime.hex",
+        "llvm-objcopy",
+        "zig-cache/bin/ztime.elf",
+        "ztime.bin",
+    }).step);
+    hex.dependOn(&b.addSystemCommand(&[_][]const u8{
+        "llvm-objcopy",
+        "ztime.bin",
+        "ztime.ihex",
     }).step);
 
     var main_tests = b.addTest("src/main.zig");
