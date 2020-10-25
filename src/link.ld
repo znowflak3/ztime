@@ -1,74 +1,21 @@
-/* Linker script to configure memory regions.
- * Need modifying for a specific board.
- *   FLASH.ORIGIN: starting address of flash
- *   FLASH.LENGTH: length of flash
- *   RAM.ORIGIN: starting address of RAM bank 0
- *   RAM.LENGTH: length of RAM bank 0
- */
 MEMORY
 {
   FLASH (rx) : ORIGIN = 0x0, LENGTH = 0x80000 /* 128K */
   RAM (rwx) : ORIGIN = 0x20000000, LENGTH = 0x10000 /* 8K */
 }
 
-/* Linker script to place sections and symbol values. Should be used together
- * with other linker script that defines memory regions FLASH and RAM.
- * It references following symbols, which must be defined in code:
- *   Reset_Handler : Entry of reset handler
- *
- * It defines following symbols, which code can use without definition:
- *   __exidx_start
- *   __exidx_end
- *   __copy_table_start__
- *   __copy_table_end__
- *   __zero_table_start__
- *   __zero_table_end__
- *   __etext
- *   __data_start__
- *   __preinit_array_start
- *   __preinit_array_end
- *   __init_array_start
- *   __init_array_end
- *   __fini_array_start
- *   __fini_array_end
- *   __data_end__
- *   __bss_start__
- *   __bss_end__
- *   __end__
- *   end
- *   __HeapLimit
- *   __StackLimit
- *   __StackTop
- *   __stack
- */
 ENTRY(init)
 
 SECTIONS
 {
 	.text :
 	{
+    _text = .;
 		KEEP(*(.isr_vector))
 		*(.text*)
-
 		*(.init)
 		*(.fini)
-
-		/* .ctors */
-		*crtbegin.o(.ctors)
-		*crtbegin?.o(.ctors)
-		*(EXCLUDE_FILE(*crtend?.o *crtend.o) .ctors)
-		*(SORT(.ctors.*))
-		*(.ctors)
-
-		/* .dtors */
- 		*crtbegin.o(.dtors)
- 		*crtbegin?.o(.dtors)
- 		*(EXCLUDE_FILE(*crtend?.o *crtend.o) .dtors)
- 		*(SORT(.dtors.*))
- 		*(.dtors)
-
 		*(.rodata*)
-
 		*(.eh_frame*)
 	} > FLASH
 
