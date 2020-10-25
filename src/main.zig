@@ -194,5 +194,5 @@ fn main() void {
         .sense = .disabled,
     };
 
-    GpioPin.config(.p0_17, output);
+    //GpioPin.config(.p0_17, output);
 }
