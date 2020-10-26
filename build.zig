@@ -12,8 +12,9 @@ pub fn build(b: *Builder) !void {
     }));
 
     exe.setBuildMode(.ReleaseSmall);
+    exe.addPackagePath("pine", "lib/pine/lib.zig");
     exe.strip = true;
-    exe.setLinkerScriptPath("src/link.ld");
+    exe.setLinkerScriptPath("link.ld");
     exe.addBuildOption(bool, "use_pine_gpio", gpio_layout);
     exe.install();
 

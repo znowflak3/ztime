@@ -1,10 +1,5 @@
 const std = @import("std");
-const pine = @import("lib.zig");
-
-comptime {
-    // force a reference to start code
-    _ = @import("start.zig");
-}
+const pine = @import("pine");
 
 pub export fn main() void {
     const led = pine.GpioPin.p0_17;
