@@ -137,12 +137,20 @@ int main(void) {
 
     zrf_gpio_set_pin(17);
 
-        for(int i = 0; i < sbs; i++){
+    for(int i = 0; i < sbs; i++){
         //APP_ERROR_CHECK(nrfx_spim_xfer(&lcdSpi, &xferData, 0));
         //zrf_spi_write_bytes(colorData);
         zrf_spim_write((uint8_t)(bgColor >> 8), 1);
         zrf_spim_write((uint8_t)(bgColor & 0xFF), 1);
     }
+
+    bgColor = ST77XX_RED;
+
+    for(int i = 0; i < sbs; i++){
+        zrf_spim_write((uint8_t)(bgColor >> 8), 1);
+        zrf_spim_write((uint8_t)(bgColor & 0xFF), 1);
+    }
+
 
     zrf_gpio_clear_pin(17);
 
