@@ -19,7 +19,8 @@ pub export fn main() void {
     });
 
     while (true) {
-        pine.Gpio.clear(.{ .p0_17 = false });
+        pine.Gpio.clear(.{ .p0_17 = true });
+
         timer.setPrescaler(0);
         timer.setBitMode(.b32);
         timer.setMode(.timer);
@@ -27,9 +28,11 @@ pub export fn main() void {
         timer.clearEvent(.event_0);
         timer.clear();
         timer.start();
+
         while (timer.readEvent(.event_0) == 0) {}
 
         pine.Gpio.set(.{ .p0_17 = true });
+
         timer.setPrescaler(0);
         timer.setBitMode(.b32);
         timer.setMode(.timer);
@@ -37,6 +40,7 @@ pub export fn main() void {
         timer.clearEvent(.event_0);
         timer.clear();
         timer.start();
+
         while (timer.readEvent(.event_0) == 0) {}
     }
 }

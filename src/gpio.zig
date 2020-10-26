@@ -1,6 +1,8 @@
 //const build_options = @import("build_options");
 
 pub const Gpio = packed struct {
+    //! GPIO pin state where `false` has no effect and `true` will change the
+    //! pin state with the given `set` and `clear` methods.
     xl1: bool = false,
     xl2: bool = false,
     spi_sck: bool = false,
@@ -36,12 +38,14 @@ pub const Gpio = packed struct {
 
     const base = 0x50000000;
 
+    /// Set the configured pins to low when the pin is true
     pub fn set(self: Gpio) void {
         const offset = 0x508;
         const address = @intToPtr(*volatile u32, base + offset);
         address.* = @bitCast(u32, self);
     }
 
+    /// Set the configured pins to high when the pin is true
     pub fn clear(self: Gpio) void {
         const offset = 0x50c;
         const address = @intToPtr(*volatile u32, base + offset);
