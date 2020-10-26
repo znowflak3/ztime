@@ -1,6 +1,6 @@
 const build_options = @import("build_options");
 
-pub const Gpio = struct {
+pub const Gpio = packed struct {
     xl1: bool = false,
     xl2: bool = false,
     spi_sck: bool = false,
@@ -37,7 +37,7 @@ pub const Gpio = struct {
     const gpio_set_address = @intToPtr(*volatile u32, 0x50000508);
     const gpio_clear_address = @intToPtr(*volatile u32, 0x5000050c);
 
-    fn set(self: Gpio) void {
+    pub fn set(self: Gpio) void {
         if (build_options.use_pine_gpio) {
             gpio_set_address.* = @bitCast(u32, self);
         } else {
@@ -47,7 +47,7 @@ pub const Gpio = struct {
         }
     }
 
-    fn clear(self: Gpio) void {
+    pub fn clear(self: Gpio) void {
         if (build_options.use_pine_gpio) {
             gpio_clear_address.* = @bitCast(u32, self);
         } else {

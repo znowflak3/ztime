@@ -9,5 +9,5 @@ doin the mess around with st7789
 ## Building
 
 ```
-zig build
+zig build && zig build ihex
 ```
