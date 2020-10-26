@@ -19,17 +19,17 @@ SECTIONS {
     *(.rodata)
     *(.rodata*)
     . = ALIGN(4);
-    _end_text = .;
+    __text_end = .;
   }
 
   .bss : {
     . = ALIGN(4);
-    _start_bss = .;
+    __bss_start = .;
     *(.bss)
     *(.bss*)
     *(COMMON)
     . = ALIGN(4);
-    _end_bss = .;
+    __bss_end = .;
   } > RAM
 
   .ARM.extab : {
@@ -43,12 +43,13 @@ SECTIONS {
     __exidx_end = .;
   } > FLASH
 
-  .data : AT ( _end_text ) {
+  .data : AT ( __text_end ) {
     . = ALIGN(4);
-    _start_data = .;
+    __data_start = .;
+    __data_load = LOADADDR(.data);
     *(.data);
     *(.data*);
-    _end_data = .;
+    __data_end = .;
   } > RAM
 
   __stack = ORIGIN(RAM) + LENGTH(RAM);
