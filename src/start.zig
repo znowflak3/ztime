@@ -1,6 +1,13 @@
 const std = @import("std");
 const root = @import("root");
 
+comptime {
+    asm (
+        \\.section  .isr_vector_stack_val,"a",%progbits
+        \\.word  __stack
+    );
+}
+
 export const isr_vector linksection(".isr_vector") = [_]fn () callconv(.C) void{
     init, // reset
     default, // nmi
