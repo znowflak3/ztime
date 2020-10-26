@@ -152,12 +152,4 @@ pub const Timer = enum(u32) {
         const address = @intToPtr(*volatile u32, @enumToInt(timer) + offset);
         address.* = value;
     }
-
-    // TODO
-    pub const TimerConfig = struct {
-        set_interrupt: ?Interrupt = null,
-    };
-
-    // TODO
-    pub fn configure() void {}
 };
