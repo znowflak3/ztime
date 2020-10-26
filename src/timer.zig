@@ -35,19 +35,19 @@ pub const Timer = enum(u32) {
 
     pub fn stop(timer: Timer) void {
         const offset = 0x004;
-        const address = @intToPtr(*volatile u32, @enumToInt(timer));
+        const address = @intToPtr(*volatile u32, @enumToInt(timer) + offset);
         address.* = 1;
     }
 
     pub fn increment(timer: Timer) void {
         const offset = 0x008;
-        const address = @intToPtr(*volatile u32, @enumToInt(timer));
+        const address = @intToPtr(*volatile u32, @enumToInt(timer) + offset);
         address.* = 1;
     }
 
     pub fn clear(timer: Timer) void {
         const offset = 0x00c;
-        const address = @intToPtr(*volatile u32, @enumToInt(timer));
+        const address = @intToPtr(*volatile u32, @enumToInt(timer) + offset);
         address.* = 1;
     }
 
