@@ -153,3 +153,5 @@ pub const Timer = enum(u32) {
         address.* = value;
     }
 };
+
+pub const TealTimeCounter = void; // TODO
