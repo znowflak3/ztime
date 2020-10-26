@@ -4,6 +4,7 @@
 #include "zrf_gpio.h"
 #include "zrf_delay.h"
 #include "zrf_spi.h"
+#include "zrf_spim.h"
 
 #define ST77XX_BLACK 0x0000
 #define ST77XX_WHITE 0xFFFF
@@ -66,18 +67,19 @@ void setWindow(uint8_t startX, uint8_t startY, uint8_t width, uint8_t height)
     };
 
     setCommandPin();
-    zrf_spi_write(ST7789_CMD_CASET);
+    zrf_spim_write(ST7789_CMD_CASET, 1);
     setDataPin();
-    zrf_spi_write_bytes(lcdCasetData, 4);
+    zrf_spim_write_bytes(lcdCasetData, 4);
 
     setCommandPin();
-    zrf_spi_write(ST7789_CMD_RASET);
+    zrf_spim_write(ST7789_CMD_RASET, 1);
     setDataPin();
-    zrf_spi_write_bytes(lcdRasetData, 4);
+    zrf_spim_write_bytes(lcdRasetData, 4);
 }
 int main(void) {
 
     zrf_gpio_config_output_pin(17);
+
 
     //zrf_delay_ms(5000);
 
@@ -88,41 +90,41 @@ int main(void) {
 
     zrf_gpio_config_output_pin(LCD_SPIM_DCX_PIN);
     zrf_gpio_config_output_pin(LCD_SPIM_RESET_PIN);
-    zrf_spi_init(LCD_SPIM_SS_PIN, LCD_SPIM_MISO_PIN, LCD_SPIM_MOSI_PIN, LCD_SPIM_SCK_PIN);
+    zrf_spim_init();
     zrf_delay_ms(50);
     zrf_st7789_hw_reset();
 
 
     // Send the commands
     setCommandPin();
-    zrf_spi_write(ST7789_CMD_SWRESET);
+    zrf_spim_write(ST7789_CMD_SWRESET, 1);
     zrf_delay_ms(150);
 
-    zrf_spi_write(ST7789_CMD_SLPOUT);
+    zrf_spim_write(ST7789_CMD_SLPOUT, 1);
     zrf_delay_ms(10);
 
-    zrf_spi_write(ST7789_CMD_COLMOD);
+    zrf_spim_write(ST7789_CMD_COLMOD, 1);
     setDataPin();
-    zrf_spi_write(0x55);
+    zrf_spim_write(0x55, 1);
     zrf_delay_ms(10);
 
     setCommandPin();
-    zrf_spi_write(ST7789_CMD_MADCTL);
+    zrf_spim_write(ST7789_CMD_MADCTL, 1);
     setDataPin();
-    zrf_spi_write(0);
+    zrf_spim_write(0, 1);
 
-    setWindow(0, 0, screenSizeX, screenSizeY);
+    //setWindow(0, 0, screenSizeX, screenSizeY);
 
     setCommandPin();
-    zrf_spi_write(ST7789_CMD_DISPON);
-    zrf_spi_write(ST7789_CMD_NORON);
-    zrf_spi_write(ST7789_CMD_INVON);
+    zrf_spim_write(ST7789_CMD_DISPON, 1);
+    zrf_spim_write(ST7789_CMD_NORON, 1);
+    zrf_spim_write(ST7789_CMD_INVON, 1);
     zrf_delay_ms(10);
 
     //write bg black
 
     setCommandPin();
-    zrf_spi_write(ST7789_CMD_RAMWR);
+    zrf_spim_write(ST7789_CMD_RAMWR, 1);
     setDataPin();
 
     uint16_t bgColor = ST77XX_GREEN;
@@ -131,15 +133,15 @@ int main(void) {
             (uint8_t)(bgColor >> 8),
             (uint8_t)(bgColor & 0xFF)
         };
-        int sbs = 5000;
+        int sbs = 57600;
 
     zrf_gpio_set_pin(17);
 
         for(int i = 0; i < sbs; i++){
         //APP_ERROR_CHECK(nrfx_spim_xfer(&lcdSpi, &xferData, 0));
         //zrf_spi_write_bytes(colorData);
-        zrf_spi_write((uint8_t)(bgColor >> 8));
-        zrf_spi_write((uint8_t)(bgColor & 0xFF));
+        zrf_spim_write((uint8_t)(bgColor >> 8), 1);
+        zrf_spim_write((uint8_t)(bgColor & 0xFF), 1);
     }
 
     zrf_gpio_clear_pin(17);
