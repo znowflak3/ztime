@@ -6,7 +6,7 @@ comptime {
     _ = @import("start.zig");
 }
 
-pub fn main() void {
+pub export fn main() void {
     const led = pine.GpioPin.p0_17;
 
     led.config(.{
@@ -16,4 +16,8 @@ pub fn main() void {
         .drive = .s0s1,
         .sense = .disabled,
     });
+}
+
+test "semantic-analysis" {
+    @import("std").testing.refAllDecls(@This());
 }

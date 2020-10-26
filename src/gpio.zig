@@ -1,4 +1,4 @@
-const build_options = @import("build_options");
+//const build_options = @import("build_options");
 
 pub const Gpio = packed struct {
     xl1: bool = false,
@@ -38,23 +38,23 @@ pub const Gpio = packed struct {
     const gpio_clear_address = @intToPtr(*volatile u32, 0x5000050c);
 
     pub fn set(self: Gpio) void {
-        if (build_options.use_pine_gpio) {
-            gpio_set_address.* = @bitCast(u32, self);
-        } else {
-            var dev = self;
-            // TODO: remap pine spi to dev board spi
-            gpio_set_address.* = @bitCast(u32, self);
-        }
+        //       if (build_options.use_pine_gpio) {
+        //           gpio_set_address.* = @bitCast(u32, self);
+        //       } else {
+        //           var dev = self;
+        // TODO: remap pine spi to dev board spi
+        gpio_set_address.* = @bitCast(u32, self);
+        //        }
     }
 
     pub fn clear(self: Gpio) void {
-        if (build_options.use_pine_gpio) {
-            gpio_clear_address.* = @bitCast(u32, self);
-        } else {
-            var dev = self;
-            // TODO: remap pine spi to dev board spi
-            gpio_clear_address.* = @bitCast(u32, dev);
-        }
+        //        if (build_options.use_pine_gpio) {
+        //            gpio_clear_address.* = @bitCast(u32, self);
+        //        } else {
+        //            var dev = self;
+        // TODO: remap pine spi to dev board spi
+        gpio_clear_address.* = @bitCast(u32, dev);
+        //        }
     }
 };
 
@@ -116,3 +116,7 @@ pub const GpioPin = enum(u32) {
         address.* = @bitCast(u32, cfg);
     }
 };
+
+test "semantic-analysis" {
+    @import("std").testing.refAllDecls(@This());
+}

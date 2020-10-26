@@ -101,7 +101,7 @@ pub const Timer = enum(u32) {
         _unused21: u16 = 0,
     };
 
-    pub fn set(timer: Timer, short: Shortcut) void {
+    pub fn shortcut(timer: Timer, short: Shortcut) void {
         const offset = 0x200;
         const address = @intToPtr(*volatile u32, @enumToInt(timer) + offset);
         address.* = @bitCast(u32, short);
@@ -155,3 +155,7 @@ pub const Timer = enum(u32) {
 };
 
 pub const TealTimeCounter = void; // TODO
+
+test "semantic-analysis" {
+    @import("std").testing.refAllDecls(@This());
+}

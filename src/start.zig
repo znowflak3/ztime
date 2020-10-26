@@ -33,6 +33,8 @@ fn default() callconv(.C) void {
 
 const stack = @intToPtr(*align(16) volatile [0x10000]u8, 0x20000000);
 
+extern fn main() void;
+
 export fn init() callconv(.C) void {
-    @call(.{ .stack = stack, .modifier = .never_inline }, root.main, .{});
+    @call(.{ .stack = stack, .modifier = .never_inline }, main, .{});
 }

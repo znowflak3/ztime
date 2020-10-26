@@ -16,7 +16,7 @@ pub fn stop(rnd: Rng) void {
 pub const Interrupt = enum { disabled, enabled };
 
 pub fn interrupt(rng: Rng, cfg: Interrupt) void {
-    const offset = switch (cfg) {
+    const offset: u32 = switch (cfg) {
         .enabled => 0x304,
         .disabled => 0x308,
     };
@@ -25,7 +25,7 @@ pub fn interrupt(rng: Rng, cfg: Interrupt) void {
 }
 
 // TODO
-pub fn set(rng: Rng, sc: bool) void {
+pub fn shortcut(rng: Rng, sc: bool) void {
     const offset = 0x100;
     const address = @intToPtr(*volatile u32, base + offset);
     address.* = @boolToInt(sc);
@@ -33,14 +33,18 @@ pub fn set(rng: Rng, sc: bool) void {
 
 pub const Bias = enum { disabled, enabled };
 
-pub fn bias(bias: Bias) void {
+pub fn bias(b: Bias) void {
     const offset = 0x504;
     const address = @intToPtr(*volatile u32, base + offset);
-    address.* = @enumToInt(bias);
+    address.* = @enumToInt(b);
 }
 
 pub fn read(rng: Rng) u8 {
     const offset = 0x508;
     const address = @intToPtr(*volatile u32, base + offset);
     return @truncate(u8, address.*);
+}
+
+test "semantic-analysis" {
+    @import("std").testing.refAllDecls(@This());
 }
