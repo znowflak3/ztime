@@ -34,27 +34,18 @@ pub const Gpio = packed struct {
     hrs3300_test: bool = false,
     battery_voltage: bool = false,
 
-    const gpio_set_address = @intToPtr(*volatile u32, 0x50000508);
-    const gpio_clear_address = @intToPtr(*volatile u32, 0x5000050c);
+    const base = 0x50000000;
 
     pub fn set(self: Gpio) void {
-        //       if (build_options.use_pine_gpio) {
-        //           gpio_set_address.* = @bitCast(u32, self);
-        //       } else {
-        //           var dev = self;
-        // TODO: remap pine spi to dev board spi
-        gpio_set_address.* = @bitCast(u32, self);
-        //        }
+        const offset = 0x508;
+        const address = @intToPtr(*volatile u32, base + offset);
+        address.* = @bitCast(u32, self);
     }
 
     pub fn clear(self: Gpio) void {
-        //        if (build_options.use_pine_gpio) {
-        //            gpio_clear_address.* = @bitCast(u32, self);
-        //        } else {
-        //            var dev = self;
-        // TODO: remap pine spi to dev board spi
-        gpio_clear_address.* = @bitCast(u32, dev);
-        //        }
+        const offset = 0x50c;
+        const address = @intToPtr(*volatile u32, base + offset);
+        address.* = @bitCast(u32, self);
     }
 };
 

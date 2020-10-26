@@ -81,6 +81,12 @@ pub const Timer = enum(u32) {
         address.* = 0;
     }
 
+    pub fn readEvent(timer: Timer, event: TimerEvent) u32 {
+        const offset = @enumToInt(event);
+        const address = @intToPtr(*volatile u32, @enumToInt(timer) + offset);
+        return address.*;
+    }
+
     pub const Shortcut = packed struct {
         clear_0: bool = false,
         clear_1: bool = false,
