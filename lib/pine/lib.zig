@@ -5,7 +5,7 @@ pub const Radio = @import("Radio.zig");
 pub const Rng = @import("Rng.zig");
 
 comptime {
-    _ = @import("start.zig");
+    if (!@import("builtin").is_test) _ = @import("start.zig");
 }
 
 test "semantic-analysis" {

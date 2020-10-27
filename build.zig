@@ -43,8 +43,19 @@ pub fn build(b: *Builder) !void {
     }).step);
 
     var main_tests = b.addTest("src/main.zig");
+    main_tests.addPackagePath("pine", "lib/pine/lib.zig");
     main_tests.setBuildMode(mode);
 
-    const test_step = b.step("test", "Run library tests");
-    test_step.dependOn(&main_tests.step);
+    var lib_tests = b.addTest("lib/pine/lib.zig");
+    lib_tests.setBuildMode(mode);
+
+    const lib_test_step = b.step("test-lib", "Run library tests");
+    lib_test_step.dependOn(&lib_tests.step);
+
+    const app_test_step = b.step("test-app", "Run application tests");
+    app_test_step.dependOn(&main_tests.step);
+
+    const test_step = b.step("test", "Run all tests");
+    test_step.dependOn(lib_test_step);
+    test_step.dependOn(app_test_step);
 }
