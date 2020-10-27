@@ -1,4 +1,5 @@
 const std = @import("std");
+const pine = @import("pine");
 const expect = std.testing.expect;
 
 pub const Spim = enum(u32) {
@@ -30,7 +31,7 @@ pub const Spim = enum(u32) {
         address.* = 1;
     }
 
-    pub const SpimEvent = enum (u32) {
+    pub const SpimEvent = enum(u32) {
         stopped = 0x104,
         endrx = 0x110,
         end = 0x118,
@@ -100,12 +101,12 @@ pub const Spim = enum(u32) {
         address.* = @bitCast(u32, cfg);
     }
 
-    pub const SpimEnable = enum (u32) {
+    pub const SpimEnable = enum(u32) {
         disabled = 0,
         enabled = 7,
     };
 
-    pub fn enable(spim: Spim, cfg: Enable) void {
+    pub fn enable(spim: Spim, cfg: SpimEnable) void {
         const offset = 0x500;
         const address = @intToPtr(*volatile u32, @enumToInt(spim) + offset);
         address.* = @enumToInt(cfg);
@@ -137,7 +138,7 @@ pub const Spim = enum(u32) {
         address.* = @bitCast(u32, cfg);
     }
 
-    pub const Frequency = enum (u32) {
+    pub const Frequency = enum(u32) {
         k125 = 0x02000000,
         k250 = 0x04000000,
         k500 = 0x08000000,
@@ -193,7 +194,7 @@ pub const Spim = enum(u32) {
         return amount;
     }
 
-    pub const List = enum (u32) {
+    pub const List = enum(u32) {
         disabled = 0,
         arrayList = 1,
     };
@@ -237,9 +238,81 @@ pub const Spim = enum(u32) {
         address.* = val;
     }
 
+    test "semantic-analysis" {
+        @import("std").testing.refAllDecls(@This());
+    }
 };
+
+pub const SpiMaster = struct {
+    spim: Spim,
+    ssPin: pine.GpioPin.tp_int,
+
+    pub fn spimInit(sck: PinSelect, mosi: PinSelect, freq: Frequency, cfg: Config) void {
+        ssPin.config(.{
+            .direction = .output,
+            .input = .disconnect,
+            .pull = .disabled,
+            .drive = .s0s1,
+            .sense = .disabled,
+        });
+
+        pine.Gpio.set(.{.tp_int});
+
+        spim.selectSckPin(sck);
+        spim.selectMosiPin(mosi);
+        spim.setFrequency(freq);
+        spim.config(cfg);
+
+        spim.clearEvent(.stopped);
+        spim.clearEvent(.endrx);
+        spim.clearEvent(.end);
+        spim.clearEvent(.endtx);
+        spim.clearEvent(.started);
+
+        spim.enable(.enabled);
+    }
+
+    pub fn spimPrepareTx(buffer: u32, size: u8) void {
+        spim.setTxdDataPtr(buffer);
+        spim.setTxdMaxCount(size);
+        spim.setTxtList(.disabled);
+        spim.clearEvent(.end);
+    }
+
+    pub fn spimWrite(data: u8, size: u8) void {
+        const bufferAddress = &data;
+        const bufferSize = size;
+
+        spimPrepareTx(spim, bufferAddress, size);
+
+        pine.Gpio.clear(.{.tp_int});
+
+        spim.startTx();
+        while (spim.readEvent(.end) == 0) {}
+
+        pine.Gpio.set(.{.tp_int});
+
+        spim.clearEvent(.end);
+    }
+    test "semantic-analysis" {
+        @import("std").testing.refAllDecls(@This());
+    }
+};
+
+pub const ms = @round(1000 / 0.0633);
+
+pub fn delay(ticks: u32) void {
+    const timer = pine.Timer.timer0;
+
+    timer.clearEvent(.event_0);
+    timer.setBitMode(.b32);
+    timer.setPrescaler(0);
+    timer.setCaptureCompare(.cc_0, ticks);
+    timer.clear();
+    timer.start();
+    while (timer.readEvent(.event_0) == 0) {}
+}
 
 test "semantic-analysis" {
     @import("std").testing.refAllDecls(@This());
 }
-
