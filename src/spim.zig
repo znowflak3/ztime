@@ -223,9 +223,13 @@ pub const Spim = enum(u32) {
         const address = @intToPtr(*volatile u32, @enumToInt(spim) + offset);
         address.* = @bitCast(u32, cfg);
     }
-        //config = 0x554,
-        //orc = 0x35C0,
 
+    pub fn readOrc(spim: Spim, value: u8) {
+        const offset = 0x5C0;
+        const address = @intToPtr(*volatile u32, @enumToInt(spim) + offset);
+        const val: u32 = value;
+        address.* = val;
+    }
 
 };
 
