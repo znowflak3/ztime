@@ -192,7 +192,7 @@ pub const Spim = enum(u32) {
         const amount: u8 = address.*;
         return amount;
     }
-
+. If
     pub const List = enum (u32) {
         disabled = 0,
         arrayList = 1,
@@ -224,7 +224,13 @@ pub const Spim = enum(u32) {
         address.* = @bitCast(u32, cfg);
     }
 
-    pub fn readOrc(spim: Spim, value: u8) {
+    pub fn readOrc(spim: Spim, value: u8) u32 {
+        const offset = 0x5C0;
+        const address = @intToPtr(*volatile u32, @enumToInt(spim) + offset);
+        return address.*;
+    }
+
+    pub fn writeOrc(spim: Spim, value: u8) void {
         const offset = 0x5C0;
         const address = @intToPtr(*volatile u32, @enumToInt(spim) + offset);
         const val: u32 = value;
