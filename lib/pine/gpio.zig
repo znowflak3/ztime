@@ -1,3 +1,5 @@
+const std = @import("std");
+const testing = std.testing;
 //const build_options = @import("build_options");
 
 pub const Gpio = packed struct {
@@ -52,6 +54,11 @@ pub const Gpio = packed struct {
         address.* = @bitCast(u32, self);
     }
 };
+
+test "gpio-setting" {
+    testing.expect(1 << 17 == @bitCast(u32, Gpio{ .p0_17 = true }));
+    testing.expect(1 << 11 == @bitCast(u32, Gpio{ .p0_11 = true }));
+}
 
 pub const GpioPin = enum(u32) {
     xl1 = 0x50000700,
@@ -113,5 +120,5 @@ pub const GpioPin = enum(u32) {
 };
 
 test "semantic-analysis" {
-    @import("std").testing.refAllDecls(@This());
+    testing.refAllDecls(@This());
 }

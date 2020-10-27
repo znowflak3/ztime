@@ -52,9 +52,9 @@ pub const Timer = enum(u32) {
     }
 
     pub const TimerCapture = enum(u32) {
-        cc_0 = 0x010,
-        cc_1 = 0x040,
-        cc_2 = 0x044,
+        cc_0 = 0x040,
+        cc_1 = 0x044,
+        cc_2 = 0x048,
         cc_3 = 0x04c,
         cc_4 = 0x050,
         cc_5 = 0x054,
