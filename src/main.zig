@@ -1,10 +1,5 @@
 const std = @import("std");
-const pine = @import("lib.zig");
-
-comptime {
-    // force a reference to start code
-    _ = @import("start.zig");
-}
+const pine = @import("pine");
 
 pub export fn main() void {
     const led = pine.GpioPin.p0_17;
@@ -18,29 +13,27 @@ pub export fn main() void {
         .sense = .disabled,
     });
 
+    const second: u32 = @round((1000.0 / 0.0625) * 1000.0);
+
     while (true) {
-        pine.Gpio.clear(.{ .p0_17 = true });
-
-        timer.setPrescaler(0);
-        timer.setBitMode(.b32);
-        timer.setMode(.timer);
-        timer.setCaptureCompare(.cc_0, 1000);
-        timer.clearEvent(.event_0);
-        timer.clear();
-        timer.start();
-
-        while (timer.readEvent(.event_0) == 0) {}
-
         pine.Gpio.set(.{ .p0_17 = true });
 
-        timer.setPrescaler(0);
-        timer.setBitMode(.b32);
-        timer.setMode(.timer);
-        timer.setCaptureCompare(.cc_0, 1000);
         timer.clearEvent(.event_0);
+        timer.setBitMode(.b32);
+        timer.setPrescaler(0);
+        timer.setCaptureCompare(.cc_0, second);
         timer.clear();
         timer.start();
+        while (timer.readEvent(.event_0) == 0) {}
 
+        pine.Gpio.clear(.{ .p0_17 = true });
+
+        timer.clearEvent(.event_0);
+        timer.setBitMode(.b32);
+        timer.setPrescaler(0);
+        timer.setCaptureCompare(.cc_0, second);
+        timer.clear();
+        timer.start();
         while (timer.readEvent(.event_0) == 0) {}
     }
 }

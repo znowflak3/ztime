@@ -1,4 +1,5 @@
 zig-cache
 *.hex
 *.ihex
+*.swp
 *.bin
