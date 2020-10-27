@@ -31,11 +31,11 @@ pub const Spim = enum(u32) {
     }
 
     pub const SpimEvent = enum (u32) {
-        event_stopped = 0x104,
-        event_endrx = 0x110,
-        event_end = 0x118,
-        event_endtx = 0x120,
-        event_started = 0x14C,
+        stopped = 0x104,
+        endrx = 0x110,
+        end = 0x118,
+        endtx = 0x120,
+        started = 0x14C,
     };
 
     pub fn clearEvent(spim: Spim, event: SpimEvent) void {
@@ -100,7 +100,7 @@ pub const Spim = enum(u32) {
         address.* = @bitCast(u32, cfg);
     }
 
-    pub const Enable = enum (u32) {
+    pub const SpimEnable = enum (u32) {
         disabled = 0,
         enabled = 7,
     };
@@ -239,10 +239,7 @@ pub const Spim = enum(u32) {
 
 };
 
-
-test "test1" {
-    const count: u8 = 5;
-    const val: u32 = count;
-    const T = @TypeOf(count);
-    expect(T == u8);
+test "semantic-analysis" {
+    @import("std").testing.refAllDecls(@This());
 }
+
