@@ -192,7 +192,7 @@ pub const Spim = enum(u32) {
         const amount: u8 = address.*;
         return amount;
     }
-. If
+
     pub const List = enum (u32) {
         disabled = 0,
         arrayList = 1,

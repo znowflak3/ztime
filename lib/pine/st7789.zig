@@ -14,3 +14,5 @@ pub const Command = enum(u8) {
     madctl = 0x36,
     vscsad = 0x37,
 };
+
+
