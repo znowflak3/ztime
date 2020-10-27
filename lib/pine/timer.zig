@@ -138,7 +138,7 @@ pub const Timer = enum(u32) {
         address.* = @enumToInt(bit);
     }
 
-    pub fn setPrescaler(timer: Timer, scale: u32) void {
+    pub fn setPrescaler(timer: Timer, scale: u4) void {
         const offset = 0x510;
         const address = @intToPtr(*volatile u32, @enumToInt(timer) + offset);
         address.* = scale;
@@ -159,8 +159,6 @@ pub const Timer = enum(u32) {
         address.* = value;
     }
 };
-
-pub const TealTimeCounter = void; // TODO
 
 test "semantic-analysis" {
     @import("std").testing.refAllDecls(@This());
