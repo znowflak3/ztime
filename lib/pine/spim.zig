@@ -68,37 +68,38 @@ pub const Spim = enum(u32) {
     pub const Interrupt = packed struct {
         _unused1: u1 = 0,
 
-        stopped: bool = false,
+        stopped: u1 = 0,
 
         _unused2: u2 = 0,
 
-        endrx: bool = false,
+        endrx: u1 = 0,
 
         _unused3: u1 = 0,
 
-        end: bool = false,
+        end: u1 = 0,
 
         _unused4: u1 = 0,
 
-        endtx: bool = false,
+        endtx: u1 = 0,
 
         _unused5: u10 = 0,
 
-        started: bool = false,
+        started: u1 = 0,
 
-        _unused6: u1 = 0,
+        _unused6: u4 = 0,
+        _unused7: u8 = 0,
     };
 
     pub fn setInterrupt(spim: Spim, cfg: Interrupt) void {
         const offset = 0x304;
         const address = @intToPtr(*volatile u32, @enumToInt(spim) + offset);
-        address.* = @bitCast(u24, cfg);
+        address.* = @bitCast(u32, cfg);
     }
 
     pub fn clearInterrupt(spim: Spim, cfg: Interrupt) void {
         const offset = 0x308;
         const address = @intToPtr(*volatile u32, @enumToInt(spim) + offset);
-        address.* = @bitCast(u24, cfg);
+        address.* = @bitCast(u32, cfg);
     }
 
     pub const SpimEnable = enum(u32) {
@@ -149,7 +150,7 @@ pub const Spim = enum(u32) {
     };
 
     pub fn setFrequency(spim: Spim, frequency: Frequency) void {
-        const offset = 0x523;
+        const offset = 0x524;
         const address = @intToPtr(*volatile u32, @enumToInt(spim) + offset);
         address.* = @enumToInt(frequency);
     }
@@ -157,10 +158,10 @@ pub const Spim = enum(u32) {
     pub fn setRxdDataPtr(spim: Spim, dataPtr: *u32) void {
         const offset = 0x354;
         const address = @intToPtr(*volatile u32, @enumToInt(spim) + offset);
-        address.* = dataPtr;
+        address.* = @intCast(u32, @ptrToInt(dataPtr));
     }
 
-    pub fn setTxdDataPtr(spim: Spim, dataPtr: *u32) void {
+    pub fn setTxdDataPtr(spim: Spim, dataPtr: u32) void {
         const offset = 0x544;
         const address = @intToPtr(*volatile u32, @enumToInt(spim) + offset);
         address.* = dataPtr;
@@ -180,18 +181,16 @@ pub const Spim = enum(u32) {
         address.* = val;
     }
 
-    pub fn readRxdAmount(spim: Spim) u8 {
+    pub fn readRxdAmount(spim: Spim) u32 {
         const offset = 0x53C;
         const address = @intToPtr(*volatile u32, @enumToInt(spim) + offset);
-        const amount: u8 = address.*;
-        return amount;
+        return address.*;
     }
 
-    pub fn readTxdAmount(spim: Spim) u8 {
+    pub fn readTxdAmount(spim: Spim) u32 {
         const offset = 0x54C;
         const address = @intToPtr(*volatile u32, @enumToInt(spim) + offset);
-        const amount: u8 = address.*;
-        return amount;
+        return address.*;
     }
 
     pub const List = enum(u32) {
@@ -244,11 +243,11 @@ pub const Spim = enum(u32) {
 };
 
 pub const SpiMaster = struct {
-    spim: Spim,
-    ssPin: pine.GpioPin,
+    spim: pine.Spim = pine.Spim.spim0,
+    ssPin: pine.GpioPin = pine.GpioPin.tp_int,
 
-    pub fn init(sck: Spim.PinSelect, mosi: Spim.PinSelect, freq: Spim.Frequency, cfg: Spim.Config) void {
-        ssPin.config(.{
+    pub fn init(self: SpiMaster, sck: Spim.PinSelect, mosi: Spim.PinSelect, freq: Spim.Frequency, cfg: Spim.Config) void {
+        self.ssPin.config(.{
             .direction = .output,
             .input = .disconnect,
             .pull = .disabled,
@@ -256,43 +255,43 @@ pub const SpiMaster = struct {
             .sense = .disabled,
         });
 
-        pine.Gpio.set(.{.tp_int});
+        pine.Gpio.set(.{ .tp_int = true });
 
-        spim.selectSckPin(sck);
-        spim.selectMosiPin(mosi);
-        spim.setFrequency(freq);
-        spim.config(cfg);
+        self.spim.selectSckPin(sck);
+        self.spim.selectMosiPin(mosi);
+        self.spim.setFrequency(freq);
+        self.spim.config(cfg);
 
-        spim.clearEvent(.stopped);
-        spim.clearEvent(.endrx);
-        spim.clearEvent(.end);
-        spim.clearEvent(.endtx);
-        spim.clearEvent(.started);
+        self.spim.clearEvent(.stopped);
+        self.spim.clearEvent(.endrx);
+        self.spim.clearEvent(.end);
+        self.spim.clearEvent(.endtx);
+        self.spim.clearEvent(.started);
 
-        spim.enable(.enabled);
+        self.spim.enable(.enabled);
     }
 
-    pub fn prepareTx(buffer: u32, size: u8) void {
-        spim.setTxdDataPtr(buffer);
-        spim.setTxdMaxCount(size);
-        spim.setTxtList(.disabled);
-        spim.clearEvent(.end);
+    pub fn prepareTx(self: SpiMaster, buffer: u32, size: u8) void {
+        self.spim.setTxdDataPtr(buffer);
+        self.spim.setTxdMaxcount(size);
+        self.spim.setTxdList(.disabled);
+        self.spim.clearEvent(.end);
     }
 
-    pub fn write(data: u8, size: u8) void {
-        const bufferAddress = &data;
+    pub fn write(self: SpiMaster, data: u8, size: u8) void {
+        const bufferAddress: u32 = @intCast(u32, @ptrToInt(&data));
         const bufferSize = size;
 
-        prepareTx(spim, bufferAddress, size);
+        self.prepareTx(bufferAddress, size);
 
-        pine.Gpio.clear(.{.tp_int});
+        pine.Gpio.clear(.{ .tp_int = true });
 
-        spim.startTx();
-        while (spim.readEvent(.end) == 0) {}
+        self.spim.startTx();
+        while (self.spim.readEvent(.end) == 0) {}
 
-        pine.Gpio.set(.{.tp_int});
+        pine.Gpio.set(.{ .tp_int = true });
 
-        spim.clearEvent(.end);
+        self.spim.clearEvent(.end);
     }
     test "semantic-analysis" {
         @import("std").testing.refAllDecls(@This());

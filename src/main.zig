@@ -28,34 +28,26 @@ pub export fn main() void {
         .sense = .disabled,
     });
 
-    spiMaster.init(.{ .pin = 4 }, .{ .pin = 3 }, .m8, .{ .order = true, .cpha = 1, .cpol = 1 });
+    spiMaster.init(.{ .pin = 4 }, .{ .pin = 3 }, pine.Spim.Frequency.m8, .{ .order = true, .cpha = true, .cpol = true });
 
-    Delay.delay(50 * Delay.ms);
+    pine.Delay.delay(50 * pine.Delay.ms);
 
     //hw reset
-    Gpio.clear(.{
-        .hrs3300,
-    });
+    pine.Gpio.clear(.{ .hrs3300_test = true });
 
-    Delay.delay(15 * Delay.ms);
+    pine.Delay.delay(15 * pine.Delay.ms);
 
-    Gpio.set(.{
-        .ain5,
-    });
+    pine.Gpio.set(.{ .ain5 = true });
 
-    Delay.delay(2 * Delay.Ms);
+    pine.Delay.delay(2 * pine.Delay.ms);
 
     //set command
-    Gpio.clear(.{
-        .ain5,
-    });
-
-    spiMaster.write(0x01, 1);
+    pine.Gpio.clear(.{ .ain5 = true });
+    var a: u8 = 0x01;
+    spiMaster.write(a, 1);
 
     //set data
-    Gpio.Set(.{
-        .ain5,
-    });
+    pine.Gpio.set(.{ .ain5 = true });
 }
 
 pub export fn mainTwo() void {
