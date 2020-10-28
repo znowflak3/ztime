@@ -2,6 +2,63 @@ const std = @import("std");
 const pine = @import("pine");
 
 pub export fn main() void {
+    const spiMaster = pine.SpiMaster{
+        .spim = pine.Spim.spim0,
+        .ssPin = pine.GpioPin.tp_int,
+    };
+
+    const screenSizeX: u16 = 240;
+    const screenSezeY: u16 = 240;
+
+    const resetPin = pine.GpioPin.hrs3300_test; //30
+    const dcPin = pine.GpioPin.ain5; //29
+
+    resetPin.config(.{
+        .direction = .output,
+        .input = .disconnect,
+        .pull = .disabled,
+        .drive = .s0s1,
+        .sense = .disabled,
+    });
+    dcPin.config(.{
+        .direction = .output,
+        .input = .disconnect,
+        .pull = .disabled,
+        .drive = .s0s1,
+        .sense = .disabled,
+    });
+
+    spiMaster.init(.{ .pin = 4 }, .{ .pin = 3 }, .m8, .{ .order = true, .cpha = 1, .cpol = 1 });
+
+    Delay.delay(50 * Delay.ms);
+
+    //hw reset
+    Gpio.clear(.{
+        .hrs3300,
+    });
+
+    Delay.delay(15 * Delay.ms);
+
+    Gpio.set(.{
+        .ain5,
+    });
+
+    Delay.delay(2 * Delay.Ms);
+
+    //set command
+    Gpio.clear(.{
+        .ain5,
+    });
+
+    spiMaster.write(0x01, 1);
+
+    //set data
+    Gpio.Set(.{
+        .ain5,
+    });
+}
+
+pub export fn mainTwo() void {
     const led = pine.GpioPin.p0_17;
     const timer = pine.Timer.timer0;
 

@@ -1,5 +1,5 @@
 const std = @import("std");
-const pine = @import("pine");
+const pine = @import("lib.zig");
 const expect = std.testing.expect;
 
 pub const Spim = enum(u32) {
@@ -61,7 +61,7 @@ pub const Spim = enum(u32) {
 
     pub fn shortcut(spim: Spim, short: Shortcut) void {
         const offset = 0x200;
-        const address = @intToPtr(*volatile u32, @enumToInt(spim0) + offset);
+        const address = @intToPtr(*volatile u32, @enumToInt(spim) + offset);
         address.* = @bitCast(u32, short);
     }
 
@@ -86,19 +86,19 @@ pub const Spim = enum(u32) {
 
         started: bool = false,
 
-        _unused6: u12 = 0,
+        _unused6: u1 = 0,
     };
 
     pub fn setInterrupt(spim: Spim, cfg: Interrupt) void {
         const offset = 0x304;
         const address = @intToPtr(*volatile u32, @enumToInt(spim) + offset);
-        address.* = @bitCast(u32, cfg);
+        address.* = @bitCast(u24, cfg);
     }
 
     pub fn clearInterrupt(spim: Spim, cfg: Interrupt) void {
         const offset = 0x308;
         const address = @intToPtr(*volatile u32, @enumToInt(spim) + offset);
-        address.* = @bitCast(u32, cfg);
+        address.* = @bitCast(u24, cfg);
     }
 
     pub const SpimEnable = enum(u32) {
@@ -117,7 +117,7 @@ pub const Spim = enum(u32) {
 
         _unused1: u27 = 0,
 
-        connect: bool = 0,
+        connect: bool = false,
     };
 
     pub fn selectSckPin(spim: Spim, cfg: PinSelect) void {
@@ -245,9 +245,9 @@ pub const Spim = enum(u32) {
 
 pub const SpiMaster = struct {
     spim: Spim,
-    ssPin: pine.GpioPin.tp_int,
+    ssPin: pine.GpioPin,
 
-    pub fn spimInit(sck: PinSelect, mosi: PinSelect, freq: Frequency, cfg: Config) void {
+    pub fn init(sck: Spim.PinSelect, mosi: Spim.PinSelect, freq: Spim.Frequency, cfg: Spim.Config) void {
         ssPin.config(.{
             .direction = .output,
             .input = .disconnect,
@@ -272,18 +272,18 @@ pub const SpiMaster = struct {
         spim.enable(.enabled);
     }
 
-    pub fn spimPrepareTx(buffer: u32, size: u8) void {
+    pub fn prepareTx(buffer: u32, size: u8) void {
         spim.setTxdDataPtr(buffer);
         spim.setTxdMaxCount(size);
         spim.setTxtList(.disabled);
         spim.clearEvent(.end);
     }
 
-    pub fn spimWrite(data: u8, size: u8) void {
+    pub fn write(data: u8, size: u8) void {
         const bufferAddress = &data;
         const bufferSize = size;
 
-        spimPrepareTx(spim, bufferAddress, size);
+        prepareTx(spim, bufferAddress, size);
 
         pine.Gpio.clear(.{.tp_int});
 
