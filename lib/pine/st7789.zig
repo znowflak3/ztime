@@ -43,7 +43,7 @@ pub fn init() void {
         .sense = .disabled,
     });
 
-    spiMaster.init(.{ .pin = 4 }, .{ .pin = 3 }, pine.Spim.Frequency.m8, .{ .order = true, .cpha = true, .cpol = true });
+    spiMaster.init(.{ .pin = 4 }, .{ .pin = 3 }, pine.Spim.Frequency.m8, .{ .order = false, .cpha = true, .cpol = false });
 
     pine.Delay.delay(50 * pine.Delay.ms);
 
@@ -58,9 +58,28 @@ pub fn init() void {
 
     columnAddressSet(0, 240);
     rowAddressSet(0, 240);
-    displayInversionOn();
     normalModeOn();
+    displayInversionOn();
+
+    ramWrite();
+
+    const green: Color = .{ .red = 0, .green = 30, .blue = 0 };
+    const bgColor: u16 = @bitCast(u16, green);
+
+    var colorData = [_]u8{
+        @intCast(u8, bgColor >> 8),
+        @intCast(u8, bgColor & 0xFF),
+    };
+    const pixOnScreen: u16 = 57600;
+
+    var i: usize = 0;
+    while (true) : (i += 1) {
+        if (i == 57600) break;
+        spiMaster.writeBytes(colorData[0..]);
+    }
+
     displayOn();
+    verticalScrollDefintion(100, 100, 100);
 }
 
 pub fn setDataPin() void {
@@ -75,7 +94,7 @@ pub fn hwReset() void {
     pine.Gpio.clear(.{ .hrs3300_test = true });
     pine.Delay.delay(15 * pine.Delay.ms);
 
-    pine.Gpio.set(.{ .ain5 = true });
+    pine.Gpio.set(.{ .hrs3300_test = true });
     pine.Delay.delay(2 * pine.Delay.ms);
 }
 
@@ -204,6 +223,21 @@ pub fn normalModeOn() void {
     setCommandPin();
     spiMaster.write(@enumToInt(Command.noron));
 }
+
+pub fn verticalScrollDefintion(topLines: u16, scrollLines: u16, bottomLines: u16) void {
+    setCommandPin();
+    spiMaster.write(@enumToInt(Command.vscrdef));
+
+    setDataPin();
+    spiMaster.write(@intCast(u8, topLines >> 8));
+    spiMaster.write(@intCast(u8, topLines & 0xFF));
+    spiMaster.write(@intCast(u8, scrollLines >> 8));
+    spiMaster.write(@intCast(u8, scrollLines & 0xFF));
+    spiMaster.write(@intCast(u8, bottomLines >> 8));
+    spiMaster.write(@intCast(u8, bottomLines & 0xFF));
+}
+
+pub fn verticalScrollStartAddress() void {}
 test "semantic-analysis" {
     @import("std").testing.refAllDecls(@This());
 }
