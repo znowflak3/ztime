@@ -2,52 +2,8 @@ const std = @import("std");
 const pine = @import("pine");
 
 pub export fn main() void {
-    const spiMaster = pine.SpiMaster{
-        .spim = pine.Spim.spim0,
-        .ssPin = pine.GpioPin.tp_int,
-    };
-
-    const screenSizeX: u16 = 240;
-    const screenSezeY: u16 = 240;
-
-    const resetPin = pine.GpioPin.hrs3300_test; //30
-    const dcPin = pine.GpioPin.ain5; //29
-
-    resetPin.config(.{
-        .direction = .output,
-        .input = .disconnect,
-        .pull = .disabled,
-        .drive = .s0s1,
-        .sense = .disabled,
-    });
-    dcPin.config(.{
-        .direction = .output,
-        .input = .disconnect,
-        .pull = .disabled,
-        .drive = .s0s1,
-        .sense = .disabled,
-    });
-
-    spiMaster.init(.{ .pin = 4 }, .{ .pin = 3 }, pine.Spim.Frequency.m8, .{ .order = true, .cpha = true, .cpol = true });
-
-    pine.Delay.delay(50 * pine.Delay.ms);
-
-    //hw reset
-    pine.Gpio.clear(.{ .hrs3300_test = true });
-
-    pine.Delay.delay(15 * pine.Delay.ms);
-
-    pine.Gpio.set(.{ .ain5 = true });
-
-    pine.Delay.delay(2 * pine.Delay.ms);
-
-    //set command
-    pine.Gpio.clear(.{ .ain5 = true });
-    var a: u8 = 0x01;
-    spiMaster.write(a, 1);
-
-    //set data
-    pine.Gpio.set(.{ .ain5 = true });
+    const lcd = pine.ST7789;
+    lcd.init();
 }
 
 pub export fn mainTwo() void {
