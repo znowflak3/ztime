@@ -63,23 +63,59 @@ pub fn init() void {
 
     ramWrite();
 
+    displayOn();
+    verticalScrollDefintion(0, 320, 0);
+    setAddressWindow(0, 0, 240, 320);
+    //verticalScrollStartAddress(40);
     const green: Color = .{ .red = 0, .green = 30, .blue = 0 };
-    const bgColor: u16 = @bitCast(u16, green);
+    const greenColor: u16 = @bitCast(u16, green);
+    const red: Color = .{ .red = 30, .green = 0, .blue = 0 };
+    const redColor: u16 = @bitCast(u16, red);
+    const blue: Color = .{ .red = 0, .green = 0, .blue = 30 };
+    const blueColor: u16 = @bitCast(u16, blue);
 
-    var colorData = [_]u8{
-        @intCast(u8, bgColor >> 8),
-        @intCast(u8, bgColor & 0xFF),
+    var colorDataGreen = [_]u8{
+        @intCast(u8, greenColor >> 8),
+        @intCast(u8, greenColor & 0xFF),
     };
-    const pixOnScreen: u16 = 57600;
+
+    var colorDataRed = [_]u8{
+        @intCast(u8, redColor >> 8),
+        @intCast(u8, redColor & 0xFF),
+    };
+    var colorDataBlue = [_]u8{
+        @intCast(u8, blueColor >> 8),
+        @intCast(u8, blueColor & 0xFF),
+    };
+
+    const pixOnScreen: u16 = 57600 / 2;
 
     var i: usize = 0;
     while (true) : (i += 1) {
-        if (i == 57600) break;
-        spiMaster.writeBytes(colorData[0..]);
+        if (i == pixOnScreen) break;
+        spiMaster.writeBytes(colorDataGreen[0..]);
     }
 
-    displayOn();
-    verticalScrollDefintion(100, 100, 100);
+    i = 0;
+    while (true) : (i += 1) {
+        if (i == pixOnScreen) break;
+        spiMaster.writeBytes(colorDataRed[0..]);
+    }
+
+    i = 0;
+    while (true) : (i += 1) {
+        if (i == pixOnScreen) break;
+        spiMaster.writeBytes(colorDataBlue[0..]);
+    }
+
+    pine.Delay.delay(1000 * pine.Delay.ms);
+
+    i = 0;
+    while (true) : (i += 1) {
+        if (i == 319) break;
+        verticalScrollStartAddress(@intCast(u6, i));
+        pine.Delay.delay(50 * pine.Delay.ms);
+    }
 }
 
 pub fn setDataPin() void {
@@ -237,7 +273,14 @@ pub fn verticalScrollDefintion(topLines: u16, scrollLines: u16, bottomLines: u16
     spiMaster.write(@intCast(u8, bottomLines & 0xFF));
 }
 
-pub fn verticalScrollStartAddress() void {}
+pub fn verticalScrollStartAddress(line: u16) void {
+    setCommandPin();
+    spiMaster.write(@enumToInt(Command.vscsad));
+
+    setDataPin();
+    spiMaster.write(@intCast(u8, line >> 8));
+    spiMaster.write(@intCast(u8, line & 0xFF));
+}
 test "semantic-analysis" {
     @import("std").testing.refAllDecls(@This());
 }
