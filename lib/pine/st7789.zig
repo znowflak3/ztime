@@ -1,4 +1,6 @@
+const std = @import("std");
 const pine = @import("lib.zig");
+
 pub const Color = packed struct { red: u5, green: u6, blue: u5 };
 
 pub const Command = enum(u8) {
@@ -21,8 +23,15 @@ const spiMaster = pine.SpiMaster{
     .ssPin = pine.GpioPin.tp_int,
 };
 
-const screenSizeX: u16 = 240;
-const screenSezeY: u16 = 240;
+pub const display = struct {
+    pub const x = 240;
+    pub const y = 240;
+
+    pub const frambuffer = struct {
+        pub const x = 240;
+        pub const y = 320;
+    };
+};
 
 const resetPin = pine.GpioPin.hrs3300_test; //30
 const dcPin = pine.GpioPin.ain5; //29
@@ -35,6 +44,7 @@ pub fn init() void {
         .drive = .s0s1,
         .sense = .disabled,
     });
+
     dcPin.config(.{
         .direction = .output,
         .input = .disconnect,
@@ -43,7 +53,12 @@ pub fn init() void {
         .sense = .disabled,
     });
 
-    spiMaster.init(.{ .pin = 4 }, .{ .pin = 3 }, pine.Spim.Frequency.m8, .{ .order = false, .cpha = true, .cpol = false });
+    spiMaster.init(
+        .{ .pin = 4 },
+        .{ .pin = 3 },
+        pine.Spim.Frequency.m8,
+        .{ .order = false, .cpha = true, .cpol = false },
+    );
 
     pine.Delay.delay(50 * pine.Delay.ms);
 
@@ -67,45 +82,29 @@ pub fn init() void {
     verticalScrollDefintion(0, 320, 0);
     setAddressWindow(0, 0, 240, 320);
     //verticalScrollStartAddress(40);
+
     const green: Color = .{ .red = 0, .green = 30, .blue = 0 };
-    const greenColor: u16 = @bitCast(u16, green);
     const red: Color = .{ .red = 30, .green = 0, .blue = 0 };
-    const redColor: u16 = @bitCast(u16, red);
     const blue: Color = .{ .red = 0, .green = 0, .blue = 30 };
-    const blueColor: u16 = @bitCast(u16, blue);
-
-    var colorDataGreen = [_]u8{
-        @intCast(u8, greenColor >> 8),
-        @intCast(u8, greenColor & 0xFF),
-    };
-
-    var colorDataRed = [_]u8{
-        @intCast(u8, redColor >> 8),
-        @intCast(u8, redColor & 0xFF),
-    };
-    var colorDataBlue = [_]u8{
-        @intCast(u8, blueColor >> 8),
-        @intCast(u8, blueColor & 0xFF),
-    };
 
     const pixOnScreen: u16 = 57600 / 2;
 
     var i: usize = 0;
     while (true) : (i += 1) {
         if (i == pixOnScreen) break;
-        spiMaster.writeBytes(colorDataGreen[0..]);
+        spiMaster.writeBytes(std.mem.asBytes(&green));
     }
 
     i = 0;
     while (true) : (i += 1) {
         if (i == pixOnScreen) break;
-        spiMaster.writeBytes(colorDataRed[0..]);
+        spiMaster.writeBytes(std.mem.asBytes(&red));
     }
 
     i = 0;
     while (true) : (i += 1) {
         if (i == pixOnScreen) break;
-        spiMaster.writeBytes(colorDataBlue[0..]);
+        spiMaster.writeBytes(std.mem.asBytes(&blue));
     }
 
     pine.Delay.delay(1000 * pine.Delay.ms);

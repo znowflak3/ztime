@@ -94,30 +94,84 @@ pub const GpioPin = enum(u32) {
     hrs3300_test = 0x50000778,
     battery_voltage = 0x5000077C,
 
-    pub const PinConfig = packed struct {
-        direction: packed enum(u1) { input, output },
-        input: packed enum(u1) { connect, disconnect },
-        pull: packed enum(u2) { disabled, pulldown, pullup },
-        unused1: u4 = 0,
-        drive: packed enum(u3) {
-            s0s1,
-            h0s1,
-            s0h1,
-            h0h1,
-            d0s1,
-            s0d1,
-            h0d1,
-        },
-        unused2: u5 = 0,
-        sense: packed enum(u2) { disabled, high, low },
-        unused3: u14 = 0,
-    };
-
-    pub fn config(self: GpioPin, cfg: PinConfig) void {
-        const address = @intToPtr(*volatile u32, @enumToInt(self));
+    pub fn config(pin: GpioPin, cfg: PinConfig) void {
+        const address = @intToPtr(*volatile u32, @enumToInt(pin));
         address.* = @bitCast(u32, cfg);
     }
 };
+
+pub const PinConfig = packed struct {
+    direction: packed enum(u1) { input, output },
+    input: packed enum(u1) { connect, disconnect },
+    pull: packed enum(u2) { disabled, pulldown, pullup },
+    unused1: u4 = 0,
+    drive: packed enum(u3) {
+        s0s1,
+        h0s1,
+        s0h1,
+        h0h1,
+        d0s1,
+        s0d1,
+        h0d1,
+    },
+    unused2: u5 = 0,
+    sense: packed enum(u2) { disabled, high, low },
+    unused3: u14 = 0,
+};
+
+pub fn MakeGpioPin(comptime pin: GpioPin) type {
+    return struct {
+        pub inline fn set() void {
+            var cfg: Gpio = .{};
+            @field(cfg, @tagName(pin)) = true;
+            cfg.set();
+        }
+
+        pub inline fn clear() void {
+            var cfg: Gpio = .{};
+            @field(cfg, @tagName(pin)) = true;
+            cfg.clear();
+        }
+
+        pub fn config(cfg: PinConfig) void {
+            const address = @intToPtr(*volatile u32, @enumToInt(pin));
+            address.* = @bitCast(u32, cfg);
+        }
+    };
+}
+
+pub const xl1 = MakeGpioPin(0x50000700);
+pub const xl2 = MakeGpioPin(0x50000704);
+pub const spi_sck = MakeGpioPin(0x50000708);
+pub const spi_mosi = MakeGpioPin(0x5000070C);
+pub const spi_miso = MakeGpioPin(0x50000710);
+pub const spi_ce = MakeGpioPin(0x50000714);
+pub const bma421_sda = MakeGpioPin(0x50000718);
+pub const bma421_scl = MakeGpioPin(0x5000071C);
+pub const bma421_int = MakeGpioPin(0x50000720);
+pub const lcd_det = MakeGpioPin(0x50000724);
+pub const tp_reset = MakeGpioPin(0x50000728);
+pub const p0_11 = MakeGpioPin(0x5000072C);
+pub const charge_indication = MakeGpioPin(0x50000730);
+pub const push_button_in = MakeGpioPin(0x50000734);
+pub const lcd_backlight_low = MakeGpioPin(0x50000738);
+pub const push_button_out = MakeGpioPin(0x5000073C);
+pub const vibrator_out = MakeGpioPin(0x50000740);
+pub const p0_17 = MakeGpioPin(0x50000744);
+pub const lcd_rs = MakeGpioPin(0x50000748);
+pub const power_presence_indication = MakeGpioPin(0x5000074C);
+pub const traceclk = MakeGpioPin(0x50000750);
+pub const n_reset = MakeGpioPin(0x50000754);
+pub const lcd_backlight_mid = MakeGpioPin(0x50000758);
+pub const lcd_backlight_high = MakeGpioPin(0x5000075C);
+pub const power_control_3v3 = MakeGpioPin(0x50000760);
+pub const lcd_cs = MakeGpioPin(0x50000764);
+pub const lcd_reset = MakeGpioPin(0x50000768);
+pub const status_led = MakeGpioPin(0x5000076C);
+pub const tp_int = MakeGpioPin(0x50000770);
+pub const ain5 = MakeGpioPin(0x50000774);
+pub const hrs3300_test = MakeGpioPin(0x50000778);
+pub const battery_voltage = MakeGpioPin(0x5000077C);
 
 test "semantic-analysis" {
     testing.refAllDecls(@This());
