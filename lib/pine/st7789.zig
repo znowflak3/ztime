@@ -87,32 +87,43 @@ pub fn init() void {
     const red: Color = .{ .red = 30, .green = 0, .blue = 0 };
     const blue: Color = .{ .red = 0, .green = 0, .blue = 30 };
 
-    const pixOnScreen: u16 = 57600 / 2;
+    var pixOnScreen: u16 = 57600;
+    const magic = [_]u8{ 0xFF, 0xFF };
 
     var i: usize = 0;
     while (true) : (i += 1) {
         if (i == pixOnScreen) break;
-        spiMaster.writeBytes(std.mem.asBytes(&green));
+        const a: u8 = 0xFF;
+        spiMaster.writeBytes(&magic);
+        //spiMaster.write(a
+    }
+
+    pixOnScreen = (240 * 80) * 2;
+    i = 0;
+    while (true) : (i += 1) {
+        if (i == pixOnScreen) break;
+        //spiMaster.writeBytesDma(&magic);
+        const b: u8 = 0x00;
+        spiMaster.write(b);
     }
 
     i = 0;
     while (true) : (i += 1) {
         if (i == pixOnScreen) break;
-        spiMaster.writeBytes(std.mem.asBytes(&red));
+        //spiMaster.writeBytesDma(std.mem.asBytes(&blue) ** 2);
     }
 
-    i = 0;
-    while (true) : (i += 1) {
-        if (i == pixOnScreen) break;
-        spiMaster.writeBytes(std.mem.asBytes(&blue));
-    }
+    pine.Delay.delay(1000 * pine.Delay.ms);
+
+    //verticalScrollDefintion(0, 240, 80);
+    //verticalScrollStartAddress(240);
 
     pine.Delay.delay(1000 * pine.Delay.ms);
 
     i = 0;
     while (true) : (i += 1) {
-        if (i == 319) break;
-        verticalScrollStartAddress(@intCast(u6, i));
+        if (i == 1000) break;
+        verticalScrollStartAddress(@intCast(u16, i));
         pine.Delay.delay(50 * pine.Delay.ms);
     }
 }
@@ -279,6 +290,20 @@ pub fn verticalScrollStartAddress(line: u16) void {
     setDataPin();
     spiMaster.write(@intCast(u8, line >> 8));
     spiMaster.write(@intCast(u8, line & 0xFF));
+}
+
+test "arrays" {
+    const green: Color = .{ .red = 0, .green = 30, .blue = 0 };
+    const red: Color = .{ .red = 30, .green = 0, .blue = 0 };
+    const blue: Color = .{ .red = 0, .green = 0, .blue = 30 };
+
+    const pixOnScreen: u16 = 57600 / 2;
+
+    var i: usize = 0;
+    while (true) : (i += 1) {
+        if (i == pixOnScreen) break;
+        @import("std").print((std.mem.asBytes(&green) ** 2));
+    }
 }
 test "semantic-analysis" {
     @import("std").testing.refAllDecls(@This());

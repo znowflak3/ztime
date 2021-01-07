@@ -31,14 +31,15 @@ pub fn init(self: SpiMaster, sck: pine.Spim.PinSelect, mosi: pine.Spim.PinSelect
 }
 
 pub fn prepareTx(self: SpiMaster, buffer: u32, size: u8) void {
-    self.spim.setTxdDataPtr(buffer);
-    self.spim.setTxdMaxcount(size);
+    //self.spim.setTxdDataPtr(buffer);
     self.spim.setTxdList(.disabled);
+    self.spim.setTxdMaxcount(size);
+    self.spim.setTxdDataPtr(buffer);
     self.spim.clearEvent(.end);
 }
 
 pub fn write(self: SpiMaster, data: u8) void {
-    const bufferAddress: u32 = @intCast(u32, @ptrToInt(&data));
+    const bufferAddress: u32 = @ptrToInt(&data);
 
     self.prepareTx(bufferAddress, 1);
 
@@ -56,6 +57,33 @@ pub fn writeBytes(self: SpiMaster, data: []const u8) void {
     for (data) |value| {
         self.write(value);
     }
+}
+
+pub fn writeBytesDma(self: SpiMaster, data: []const u8) void {
+    //for (data) |value| {
+    //self.write(value);
+    //}i
+    var a: u32 = 0xFFFFFFFF;
+    var b = [_]u32{ 0xFFFFFFFF, 0xFFFFFFFF };
+    const bufferAddress: u32 = @ptrToInt(data.ptr);
+    var magic = [_]u8{ 0xFF, 0xFF, 0xFF, 0xFF } ** 8;
+
+    //self.prepareTx(bufferAddress, @intCast(u8, data.len));
+
+    self.spim.setTxdList(.arrayList);
+    self.spim.setTxdMaxcount(@intCast(u8, data.len));
+    self.spim.setTxdDataPtr(@ptrToInt(data.ptr));
+
+    self.spim.clearEvent(.end);
+
+    pine.Gpio.clear(.{ .tp_int = true });
+
+    self.spim.startTx();
+    while (self.spim.readEvent(.end) == 0) {}
+
+    pine.Gpio.set(.{ .tp_int = true });
+
+    self.spim.clearEvent(.end);
 }
 test "semantic-analysis" {
     @import("std").testing.refAllDecls(@This());
