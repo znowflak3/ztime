@@ -14,7 +14,7 @@ pub fn init(self: SpiMaster, sck: pine.Spim.PinSelect, mosi: pine.Spim.PinSelect
         .sense = .disabled,
     });
 
-    pine.Gpio.set(.{ .tp_int = true });
+    pine.Gpio.set(.{ .lcd_cs = true });
 
     self.spim.selectSckPin(sck);
     self.spim.selectMosiPin(mosi);
@@ -42,12 +42,12 @@ pub fn write(self: SpiMaster, data: u8) void {
 
     self.prepareTx(bufferAddress, 1);
 
-    pine.Gpio.clear(.{ .tp_int = true });
+    pine.Gpio.clear(.{ .lcd_cs = true });
 
     self.spim.startTx();
     while (self.spim.readEvent(.end) == 0) {}
 
-    pine.Gpio.set(.{ .tp_int = true });
+    pine.Gpio.set(.{ .lcd_cs = true });
 
     self.spim.clearEvent(.end);
 }
