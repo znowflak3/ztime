@@ -5,6 +5,7 @@ pub const Radio = @import("Radio.zig");
 pub const Rng = @import("Rng.zig");
 pub const Spim = @import("spim.zig").Spim;
 pub const SpiMaster = @import("SpiMaster.zig");
+pub const SpiNorFlash = @import("SpiNorFlash.zig");
 //delay just for test
 pub const Delay = @import("spim.zig");
 pub const ST7789 = @import("st7789.zig");

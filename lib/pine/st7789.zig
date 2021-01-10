@@ -21,6 +21,7 @@ pub const Command = enum(u8) {
 const spiMaster = pine.SpiMaster{
     .spim = pine.Spim.spim0,
     .ssPin = pine.GpioPin.lcd_cs,
+    .chipSelect = pine.Gpio { .lcd_cs = true },
 };
 
 pub const display = struct {
@@ -65,6 +66,7 @@ pub fn init() void {
     spiMaster.init(
         .{ .pin = 2 },
         .{ .pin = 3 },
+        .{ .pin = 4 },
         pine.Spim.Frequency.m8,
         .{ .order = false, .cpha = true, .cpol = false },
     );
@@ -118,10 +120,14 @@ pub fn init() void {
 
     pine.Delay.delay(1000 * pine.Delay.ms);
 
-    i = 0;
-    while (true) : (i += 1) {
-        if (i == 319) break;
-        verticalScrollStartAddress(@intCast(u6, i));
+    var scroll : u16 = 0;
+    while (true) {
+        verticalScrollStartAddress(scroll);
+        scroll += 1;
+        if (scroll >=  320)
+        {
+             scroll = 0;
+        }
         pine.Delay.delay(50 * pine.Delay.ms);
     }
 }
@@ -143,7 +149,7 @@ pub fn hwReset() void {
 }
 
 //Will have to wait 5ms before sending any new command or 120ms before sending
-//sleep out command.
+//sleep out command.	1q2Q
 pub fn swReset() void {
     setCommandPin();
     spiMaster.write(@enumToInt(Command.swreset));
