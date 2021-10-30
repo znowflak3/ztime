@@ -2,6 +2,10 @@ const std = @import("std");
 const pine = @import("pine");
 
 pub export fn main() void {
+    const norFlash = pine.SpiNorFlash;
+    norFlash.init();
+    norFlash.readIdentification();
+    
     const lcd = pine.ST7789;
     lcd.init();
 }

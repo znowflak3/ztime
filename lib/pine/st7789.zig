@@ -20,7 +20,8 @@ pub const Command = enum(u8) {
 
 const spiMaster = pine.SpiMaster{
     .spim = pine.Spim.spim0,
-    .ssPin = pine.GpioPin.tp_int,
+    .ssPin = pine.GpioPin.lcd_cs,
+    .chipSelect = pine.Gpio { .lcd_cs = true },
 };
 
 pub const display = struct {
@@ -33,8 +34,9 @@ pub const display = struct {
     };
 };
 
-const resetPin = pine.GpioPin.hrs3300_test; //30
-const dcPin = pine.GpioPin.ain5; //29
+const resetPin = pine.GpioPin.lcd_reset; //30
+const dcPin = pine.GpioPin.lcd_rs; //29
+const backLightPin = pine.GpioPin.lcd_backlight_low;
 
 pub fn init() void {
     resetPin.config(.{
@@ -53,9 +55,18 @@ pub fn init() void {
         .sense = .disabled,
     });
 
+    backLightPin.config(.{
+        .direction = .output,
+        .input = .disconnect,
+        .pull = .disabled,
+        .drive = .s0s1,
+        .sense = .disabled,
+    });
+
     spiMaster.init(
-        .{ .pin = 4 },
+        .{ .pin = 2 },
         .{ .pin = 3 },
+        .{ .pin = 4 },
         pine.Spim.Frequency.m8,
         .{ .order = false, .cpha = true, .cpol = false },
     );
@@ -115,6 +126,7 @@ pub fn init() void {
 
     pine.Delay.delay(1000 * pine.Delay.ms);
 
+<<<<<<< HEAD
     //verticalScrollDefintion(0, 240, 80);
     //verticalScrollStartAddress(240);
 
@@ -128,32 +140,38 @@ pub fn init() void {
         spiMaster.write(number]value]);
     }
 
-    i = 0;
-    while (true) : (i += 1) {
-        if (i == 1000) break;
-        verticalScrollStartAddress(@intCast(u16, i));
+
+    var scroll : u16 = 0;
+    while (true) {
+        verticalScrollStartAddress(scroll);
+        scroll += 1;
+        if (scroll >=  320)
+        {
+             scroll = 0;
+        }
+
         pine.Delay.delay(50 * pine.Delay.ms);
     }
 }
 
 pub fn setDataPin() void {
-    pine.Gpio.set(.{ .ain5 = true });
+    pine.Gpio.set(.{ .lcd_rs = true });
 }
 
 pub fn setCommandPin() void {
-    pine.Gpio.clear(.{ .ain5 = true });
+    pine.Gpio.clear(.{ .lcd_rs = true });
 }
 
 pub fn hwReset() void {
-    pine.Gpio.clear(.{ .hrs3300_test = true });
+    pine.Gpio.clear(.{ .lcd_reset = true });
     pine.Delay.delay(15 * pine.Delay.ms);
 
-    pine.Gpio.set(.{ .hrs3300_test = true });
+    pine.Gpio.set(.{ .lcd_reset = true });
     pine.Delay.delay(2 * pine.Delay.ms);
 }
 
 //Will have to wait 5ms before sending any new command or 120ms before sending
-//sleep out command.
+//sleep out command.	1q2Q
 pub fn swReset() void {
     setCommandPin();
     spiMaster.write(@enumToInt(Command.swreset));

@@ -7,13 +7,13 @@ pub const Spim = enum(u32) {
     spim1 = 0x40004000,
     spim2 = 0x40023000,
 
-    pub fn startTx(spim: Spim) void {
+    pub fn start(spim: Spim) void {
         const offset = 0x010;
         const address = @intToPtr(*volatile u32, @enumToInt(spim) + offset);
         address.* = 1;
     }
 
-    pub fn stopTx(spim: Spim) void {
+    pub fn stop(spim: Spim) void {
         const offset = 0x014;
         const address = @intToPtr(*volatile u32, @enumToInt(spim) + offset);
         address.* = 1;
@@ -155,10 +155,10 @@ pub const Spim = enum(u32) {
         address.* = @enumToInt(frequency);
     }
 
-    pub fn setRxdDataPtr(spim: Spim, dataPtr: *u32) void {
-        const offset = 0x354;
+    pub fn setRxdDataPtr(spim: Spim, dataPtr: u32) void {
+        const offset = 0x534;
         const address = @intToPtr(*volatile u32, @enumToInt(spim) + offset);
-        address.* = @intCast(u32, @ptrToInt(dataPtr));
+        address.* = dataPtr;
     }
 
     pub fn setTxdDataPtr(spim: Spim, dataPtr: u32) void {
@@ -168,7 +168,7 @@ pub const Spim = enum(u32) {
     }
 
     pub fn setRxdMaxcount(spim: Spim, count: u8) void {
-        const offset = 0x358;
+        const offset = 0x538;
         const address = @intToPtr(*volatile u32, @enumToInt(spim) + offset);
         const val: u32 = count;
         address.* = val;

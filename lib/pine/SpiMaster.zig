@@ -1,11 +1,13 @@
+
 const std = @import("std");
 const pine = @import("lib.zig");
 const SpiMaster = @This();
 
 spim: pine.Spim,
 ssPin: pine.GpioPin,
+chipSelect: pine.Gpio,
 
-pub fn init(self: SpiMaster, sck: pine.Spim.PinSelect, mosi: pine.Spim.PinSelect, freq: pine.Spim.Frequency, cfg: pine.Spim.Config) void {
+pub fn init(self: SpiMaster, sck: pine.Spim.PinSelect, mosi: pine.Spim.PinSelect, miso: pine.Spim.PinSelect, freq: pine.Spim.Frequency, cfg: pine.Spim.Config) void {
     self.ssPin.config(.{
         .direction = .output,
         .input = .disconnect,
@@ -14,10 +16,12 @@ pub fn init(self: SpiMaster, sck: pine.Spim.PinSelect, mosi: pine.Spim.PinSelect
         .sense = .disabled,
     });
 
-    pine.Gpio.set(.{ .tp_int = true });
+    self.chipSelect.set();
+    self.chipSelect.clear();
 
     self.spim.selectSckPin(sck);
     self.spim.selectMosiPin(mosi);
+    self.spim.selectMisoPin(miso);
     self.spim.setFrequency(freq);
     self.spim.config(cfg);
 
@@ -38,18 +42,53 @@ pub fn prepareTx(self: SpiMaster, buffer: u32, size: u8) void {
     self.spim.clearEvent(.end);
 }
 
+pub fn prepareTxList(self: SpiMaster, buffer: u32, size: u8) void {
+    self.spim.setTxdDataPtr(buffer);
+    self.spim.setTxdMaxcount(size);
+    self.spim.setTxdList(.arrayList);
+    self.spim.clearEvent(.end);
+}
+
+pub fn prepareRx(self: SpiMaster, buffer: u32, size: u8) void {
+    self.spim.setRxdDataPtr(buffer);
+    self.spim.setRxdMaxcount(size);
+    self.spim.setRxdList(.disabled);
+    self.spim.clearEvent(.end);
+}
+
+pub fn prepareRxList(self: SpiMaster, buffer: u32, size: u8) void {
+    self.spim.setRxdDataPtr(buffer);
+    self.spim.setRxdMaxcount(size);
+    self.spim.setRxdList(.arrayList);
+    self.spim.clearEvent(.end);
+}
+
 pub fn write(self: SpiMaster, data: u8) void {
     const bufferAddress: u32 = @ptrToInt(&data);
 
+    self.chipSelect.clear();
+
     self.prepareTx(bufferAddress, 1);
-
-    pine.Gpio.clear(.{ .tp_int = true });
-
-    self.spim.startTx();
+    self.prepareRx(0, 0);
+    self.spim.start();
     while (self.spim.readEvent(.end) == 0) {}
 
-    pine.Gpio.set(.{ .tp_int = true });
+    self.chipSelect.set();
+    self.spim.clearEvent(.end);
+}
 
+pub fn read(self: SpiMaster, cmdAddress: u32, cSize: u8, dataAddress: u32, dSize: u8) void {
+    //const cmdAddress: u32 = @intCast(u32, @ptrToInt(&cmd));
+    //const dataAddress: u32 = @intCast(u32, @ptrToInt(&data));
+
+    self.chipSelect.clear();
+
+    self.prepareTx(cmdAddress, cSize);
+    self.prepareRx(dataAddress, dSize);
+    self.spim.start();
+    while (self.spim.readEvent(.end) == 0) {}
+
+    self.chipSelect.set();
     self.spim.clearEvent(.end);
 }
 

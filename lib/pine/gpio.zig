@@ -98,6 +98,7 @@ pub const GpioPin = enum(u32) {
         const address = @intToPtr(*volatile u32, @enumToInt(pin));
         address.* = @bitCast(u32, cfg);
     }
+
 };
 
 pub const PinConfig = packed struct {

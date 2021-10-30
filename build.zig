@@ -22,7 +22,7 @@ pub fn build(b: *Builder) !void {
     const bin = b.step("bin", "build binary file");
     bin.dependOn(&exe.step);
     bin.dependOn(&b.addSystemCommand(&[_][]const u8{
-        "llvm-objcopy",
+        "objcopy",
         "-I",
         "elf32-littlearm",
         "-O",
