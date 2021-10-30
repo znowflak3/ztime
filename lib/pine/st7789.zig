@@ -120,6 +120,14 @@ pub fn init() void {
 
     pine.Delay.delay(1000 * pine.Delay.ms);
 
+    setAddressWindow(0, 0, 30, 60);
+    var number: []u16 = pine.Font.sans_serif_30x60_get_number(1);
+
+    for(number) |value| {
+        spiMaster.write(number[value]);
+        spiMaster.write(number]value]);
+    }
+
     i = 0;
     while (true) : (i += 1) {
         if (i == 1000) break;
