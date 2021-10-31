@@ -25,19 +25,19 @@ pub fn build(b: *Builder) !void {
     const bin = b.step("bin", "build binary file");
     bin.dependOn(&exe.step);
     bin.dependOn(&b.addSystemCommand(&[_][]const u8{
-        "objcopy",
+        "arm-none-eabi-objcopy",
         "-I",
         "elf32-littlearm",
         "-O",
         "binary",
-        "zig-cache/bin/ztime.elf",
+        "zig-out/bin/ztime.elf",
         "ztime.bin",
     }).step);
 
     const ihex = b.step("ihex", "build ihex file");
     ihex.dependOn(bin);
     ihex.dependOn(&b.addSystemCommand(&[_][]const u8{
-        "objcopy",
+        "arm-none-eabi-objcopy",
         "-I",
         "binary",
         "-O",
