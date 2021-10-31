@@ -102,11 +102,11 @@ pub const GpioPin = enum(u32) {
 };
 
 pub const PinConfig = packed struct {
-    direction: packed enum(u1) { input, output },
-    input: packed enum(u1) { connect, disconnect },
-    pull: packed enum(u2) { disabled, pulldown, pullup },
+    direction: enum(u1) { input, output },
+    input: enum(u1) { connect, disconnect },
+    pull: enum(u2) { disabled, pulldown, pullup },
     unused1: u4 = 0,
-    drive: packed enum(u3) {
+    drive: enum(u3) {
         s0s1,
         h0s1,
         s0h1,
@@ -116,7 +116,7 @@ pub const PinConfig = packed struct {
         h0d1,
     },
     unused2: u5 = 0,
-    sense: packed enum(u2) { disabled, high, low },
+    sense: enum(u2) { disabled, high, low },
     unused3: u14 = 0,
 };
 

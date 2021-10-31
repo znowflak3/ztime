@@ -102,10 +102,10 @@ pub fn writeBytesDma(self: SpiMaster, data: []const u8) void {
     //for (data) |value| {
     //self.write(value);
     //}i
-    var a: u32 = 0xFFFFFFFF;
-    var b = [_]u32{ 0xFFFFFFFF, 0xFFFFFFFF };
-    const bufferAddress: u32 = @ptrToInt(data.ptr);
-    var magic = [_]u8{ 0xFF, 0xFF, 0xFF, 0xFF } ** 8;
+    //var a: u32 = 0xFFFFFFFF;
+    //var b = [_]u32{ 0xFFFFFFFF, 0xFFFFFFFF };
+    //const bufferAddress: u32 = @ptrToInt(data.ptr);
+    //var magic = [_]u8{ 0xFF, 0xFF, 0xFF, 0xFF } ** 8;
 
     //self.prepareTx(bufferAddress, @intCast(u8, data.len));
 

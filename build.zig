@@ -6,6 +6,8 @@ pub fn build(b: *Builder) !void {
     const exe = b.addExecutable("ztime.elf", "src/main.zig");
     const gpio_layout = b.option(bool, "pine", "Use PineTime GPIO layout") orelse false;
 
+    const options = b.addOptions();
+
     exe.setTarget(try std.zig.CrossTarget.parse(.{
         .arch_os_abi = "thumb-freestanding-eabi",
         .cpu_features = "cortex_m4",
@@ -15,8 +17,9 @@ pub fn build(b: *Builder) !void {
     exe.addPackagePath("pine", "lib/pine/lib.zig");
     exe.strip = true;
     exe.single_threaded = true;
-    exe.setLinkerScriptPath("link.ld");
-    exe.addBuildOption(bool, "use_pine_gpio", gpio_layout);
+    exe.setLinkerScriptPath(.{ .path = "link.ld" });
+    exe.addOptions("options", options);
+    options.addOption(bool, "use_pine_gpio", gpio_layout);
     exe.install();
 
     const bin = b.step("bin", "build binary file");

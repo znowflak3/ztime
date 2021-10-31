@@ -94,17 +94,18 @@ pub fn init() void {
     setAddressWindow(0, 0, 240, 320);
     //verticalScrollStartAddress(40);
 
-    const green: Color = .{ .red = 0, .green = 30, .blue = 0 };
-    const red: Color = .{ .red = 30, .green = 0, .blue = 0 };
-    const blue: Color = .{ .red = 0, .green = 0, .blue = 30 };
+    //const green: Color = .{ .red = 0, .green = 30, .blue = 0 };
+    //const red: Color = .{ .red = 30, .green = 0, .blue = 0 };
+    //const blue: Color = .{ .red = 0, .green = 0, .blue = 30 };
 
     var pixOnScreen: u16 = 57600;
     const magic = [_]u8{ 0xFF, 0xFF };
+    
 
     var i: usize = 0;
     while (true) : (i += 1) {
         if (i == pixOnScreen) break;
-        const a: u8 = 0xFF;
+        //const a: u8 = 0xFF;
         spiMaster.writeBytes(&magic);
         //spiMaster.write(a
     }
@@ -126,7 +127,7 @@ pub fn init() void {
 
     pine.Delay.delay(1000 * pine.Delay.ms);
 
-<<<<<<< HEAD
+
     //verticalScrollDefintion(0, 240, 80);
     //verticalScrollStartAddress(240);
 
@@ -136,8 +137,8 @@ pub fn init() void {
     var number: []u16 = pine.Font.sans_serif_30x60_get_number(1);
 
     for(number) |value| {
-        spiMaster.write(number[value]);
-        spiMaster.write(number]value]);
+        spiMaster.write(@intCast(u8, number[value] >> 8));
+        spiMaster.write(@intCast(u8, number[value & 0xFF]));
     }
 
 
@@ -320,8 +321,8 @@ pub fn verticalScrollStartAddress(line: u16) void {
 
 test "arrays" {
     const green: Color = .{ .red = 0, .green = 30, .blue = 0 };
-    const red: Color = .{ .red = 30, .green = 0, .blue = 0 };
-    const blue: Color = .{ .red = 0, .green = 0, .blue = 30 };
+    //const red: Color = .{ .red = 30, .green = 0, .blue = 0 };
+    //const blue: Color = .{ .red = 0, .green = 0, .blue = 30 };
 
     const pixOnScreen: u16 = 57600 / 2;
 
