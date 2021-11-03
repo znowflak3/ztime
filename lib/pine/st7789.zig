@@ -91,12 +91,7 @@ pub fn init() void {
 
     displayOn();
     verticalScrollDefintion(0, 320, 0);
-    setAddressWindow(0, 0, 240, 320);
-    //verticalScrollStartAddress(40);
-
-    //const green: Color = .{ .red = 0, .green = 30, .blue = 0 };
-    //const red: Color = .{ .red = 30, .green = 0, .blue = 0 };
-    //const blue: Color = .{ .red = 0, .green = 0, .blue = 30 };
+    setAddressWindow(0, 0, 240, 240);
 
     var pixOnScreen: u16 = 57600;
     const magic = [_]u8{ 0xFF, 0xFF };
@@ -110,27 +105,6 @@ pub fn init() void {
         //spiMaster.write(a
     }
 
-    pixOnScreen = (240 * 80) * 2;
-    i = 0;
-    while (true) : (i += 1) {
-        if (i == pixOnScreen) break;
-        //spiMaster.writeBytesDma(&magic);
-        const b: u8 = 0x00;
-        spiMaster.write(b);
-    }
-
-    i = 0;
-    while (true) : (i += 1) {
-        if (i == pixOnScreen) break;
-        //spiMaster.writeBytesDma(std.mem.asBytes(&blue) ** 2);
-    }
-
-    pine.Delay.delay(1000 * pine.Delay.ms);
-
-
-    //verticalScrollDefintion(0, 240, 80);
-    //verticalScrollStartAddress(240);
-
     pine.Delay.delay(1000 * pine.Delay.ms);
 
     setAddressWindow(0, 0, 30, 60);
@@ -141,18 +115,7 @@ pub fn init() void {
         spiMaster.write(@intCast(u8, number[value & 0xFF]));
     }
 
-
-    var scroll : u16 = 0;
-    while (true) {
-        verticalScrollStartAddress(scroll);
-        scroll += 1;
-        if (scroll >=  320)
-        {
-             scroll = 0;
-        }
-
-        pine.Delay.delay(50 * pine.Delay.ms);
-    }
+    // to loop scrool to 320 then to 0        verticalScrollStartAddress(scroll);
 }
 
 pub fn setDataPin() void {
