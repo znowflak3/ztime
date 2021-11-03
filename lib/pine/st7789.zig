@@ -107,12 +107,12 @@ pub fn init() void {
 
     pine.Delay.delay(1000 * pine.Delay.ms);
 
-    setAddressWindow(0, 0, 30, 60);
+    setAddressWindow(0, 0, 29, 59);
     var number: []u16 = pine.Font.sans_serif_30x60_get_number(1);
 
     for(number) |value| {
-        spiMaster.write(@intCast(u8, number[value] >> 8));
-        spiMaster.write(@intCast(u8, number[value & 0xFF]));
+        spiMaster.write(@intCast(u8, number[value] & 0xFF));
+        spiMaster.write(@intCast(u8, number[value >> 8]));
     }
 
     // to loop scrool to 320 then to 0        verticalScrollStartAddress(scroll);
