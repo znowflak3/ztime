@@ -53,7 +53,7 @@ pub fn readIdentification() void {
     spiMaster.read(@intCast(u32, @ptrToInt(&cmd)), 4, @intCast(u32, @ptrToInt(&data)), 4);
 
     while (true) {
-    if(data[1] == 0x1B) { break; }
+    if(data[1] == 0x0B) { break; }
     }
     while (true) {
     if(data[2] == 0x40) { break; }
