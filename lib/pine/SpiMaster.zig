@@ -78,8 +78,6 @@ pub fn write(self: SpiMaster, data: u8) void {
 }
 
 pub fn read(self: SpiMaster, cmdAddress: u32, cSize: u8, dataAddress: u32, dSize: u8) void {
-    //const cmdAddress: u32 = @intCast(u32, @ptrToInt(&cmd));
-    //const dataAddress: u32 = @intCast(u32, @ptrToInt(&data));
 
     self.chipSelect.clear();
 
@@ -99,16 +97,7 @@ pub fn writeBytes(self: SpiMaster, data: []const u8) void {
 }
 
 pub fn writeBytesDma(self: SpiMaster, data: []const u8) void {
-    //for (data) |value| {
-    //self.write(value);
-    //}i
-    //var a: u32 = 0xFFFFFFFF;
-    //var b = [_]u32{ 0xFFFFFFFF, 0xFFFFFFFF };
-    //const bufferAddress: u32 = @ptrToInt(data.ptr);
-    //var magic = [_]u8{ 0xFF, 0xFF, 0xFF, 0xFF } ** 8;
-
-    //self.prepareTx(bufferAddress, @intCast(u8, data.len));
-
+    
     self.spim.setTxdList(.arrayList);
     self.spim.setTxdMaxcount(@intCast(u8, data.len));
     self.spim.setTxdDataPtr(@ptrToInt(data.ptr));

@@ -47,10 +47,10 @@ pub const Identification = struct {
 };
 
 pub fn readIdentification() void {
-    var cmd = [_]u8 { 0x9F, 0, 0, 0, 0 };
-    var data = [_]u8 { 0, 0, 0, 0, 0 };
+    var cmd = [_]u8 { 0x9F, 0, 0, 0 };
+    var data = [_]u8 { 0, 0, 0, 0 };
     wakeUp();
-    spiMaster.read(@intCast(u32, @ptrToInt(&cmd)), 5, @intCast(u32, @ptrToInt(&data)), 5);
+    spiMaster.read(@intCast(u32, @ptrToInt(&cmd)), 4, @intCast(u32, @ptrToInt(&data)), 4);
 
     while (true) {
     if(data[1] == 0x0B) { break; }
