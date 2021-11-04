@@ -111,8 +111,8 @@ pub fn init() void {
     var number: []u16 = pine.Font.sans_serif_30x60_get_number(2);
 
     for(number) |value| {
-        spiMaster.write(@intCast(u8, number[value] & 0xFF));
-        spiMaster.write(@intCast(u8, number[value >> 8]));
+        spiMaster.write(@intCast(u8, number[value] >> 8));
+        spiMaster.write(@intCast(u8, number[value] & 0xff));
     }
 
     // to loop scrool to 320 then to 0        verticalScrollStartAddress(scroll);
@@ -212,9 +212,9 @@ pub fn columnAddressSet(start: u16, width: u16) void {
 
     var casetData = [_]u8{
         (@intCast(u8, start >> 8)),
-        (@intCast(u8, start % 0xFF)),
+        (@intCast(u8, start & 0xFF)),
         (@intCast(u8, width >> 8)),
-        (@intCast(u8, width % 0xFF)),
+        (@intCast(u8, width & 0xFF)),
     };
 
     spiMaster.writeBytes(casetData[0..]);
@@ -226,9 +226,9 @@ pub fn rowAddressSet(start: u16, height: u16) void {
 
     var rasetData = [_]u8{
         (@intCast(u8, start >> 8)),
-        (@intCast(u8, start % 0xFF)),
+        (@intCast(u8, start & 0xFF)),
         (@intCast(u8, height >> 8)),
-        (@intCast(u8, height % 0xFF)),
+        (@intCast(u8, height & 0xFF)),
     };
 
     spiMaster.writeBytes(rasetData[0..]);
@@ -280,6 +280,11 @@ pub fn verticalScrollStartAddress(line: u16) void {
     setDataPin();
     spiMaster.write(@intCast(u8, line >> 8));
     spiMaster.write(@intCast(u8, line & 0xFF));
+}
+
+pub fn writeToScreen(startX: u16, startY: u16, width: u16, height: u16, data: []u8) void {
+    setAddressWindow(startX, startY, width, height);
+    spiMaster.writeBytes(data);
 }
 
 test "arrays" {

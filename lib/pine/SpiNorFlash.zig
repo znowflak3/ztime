@@ -60,6 +60,33 @@ pub fn readIdentification() void {
     }
 }
 
+pub fn readDataBytes(address: u24, len: u8) []u8 {
+    var cmd: []u8 = undefined;
+    cmd = cmd[0..(4 + len)];
+    cmd[0] = 0x03;
+    cmd[1] = @intCast(u8, address >> 16);
+    cmd[2] = @intCast(u8, address >> 8);
+    cmd[3] = @intCast(u8, address & 0xff);
+    
+    var data: []u8 = undefined;
+    data = data[0..(4 + len)];
+    spiMaster.read(@intCast(u32, @ptrToInt(&cmd)), len + 4, @intCast(u32, @ptrToInt(&data)), len + 4);
+
+    return data[4..data.len];
+}
+pub fn writeEnable() void {
+    var cmd: u8 = 0x06;
+    spiMaster.write(cmd);
+}
+pub fn pageProgram(address: u24, data: []u8) void {
+    var cmd: u8 = 0x02;
+    spiMaster.write(cmd);
+    spiMaster.write(@intCast(u8, address >> 16));
+    spiMaster.write(@intCast(u8, address >> 8));
+    spiMaster.write(@intCast(u8, address & 0xff));
+    spiMaster.writeBytes(data);
+}
+
 test "semantic-analysis" {
     @import("std").testing.refAllDecls(@This());
 }
