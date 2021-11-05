@@ -4,21 +4,28 @@ const pine = @import("pine");
 pub export fn main() void {
     const norFlash = pine.SpiNorFlash;
     norFlash.init();
-    norFlash.readIdentification();
+    var id = norFlash.readIdentification();
+    _ = id;
     
     const lcd = pine.ST7789;
     lcd.init();
 
     //15x15 0x4444
-    var data = [_]u8{ 0x44 } ** ((5 * 5) * 2);
-    //Write square To display and then to memory
-    //lcd.writeToScreen(0, 0, 4, 4, data[0..data.len]);
+    var data: [((5 * 5) * 2)]u8 = undefined;
+    std.mem.set(u8, &data, id.manufactureId);
+
+    var dmaData = [_]u8{0x44} ** 256;
+    //lcd.setAddressWindow(0, 0, 7, 7);
+    lcd.writeToScreen(0, 0, 7, 7, &dmaData);
     
-    norFlash.pageProgram(0, data[0..data.len]);
-    pine.Delay.delay(1000 * pine.Delay.ms);
+
+    //Write square To display and then to memory
+    //lcd.writeToScreen(0, 0, 4, 4, &data);
+    //norFlash.pageProgram(0, &data);
+    //pine.Delay.delay(1000 * pine.Delay.ms);
     //readfrom memory and write to display but next to the other square
-    var recievedData = norFlash.readDataBytes(0, data.len);
-    lcd.writeToScreen(5, 5, 14, 14, recievedData);
+    //var recievedData = norFlash.readDataBytes(0, data.len);
+    //lcd.writeToScreen(5, 5, 9, 9, recievedData);
 }
 
 pub export fn mainTwo() void {

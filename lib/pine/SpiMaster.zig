@@ -106,7 +106,7 @@ pub fn writeBytesDma(self: SpiMaster, data: []const u8) void {
 
     pine.Gpio.clear(.{ .tp_int = true });
 
-    self.spim.startTx();
+    self.spim.start();
     while (self.spim.readEvent(.end) == 0) {}
 
     pine.Gpio.set(.{ .tp_int = true });

@@ -284,7 +284,7 @@ pub fn verticalScrollStartAddress(line: u16) void {
 
 pub fn writeToScreen(startX: u16, startY: u16, width: u16, height: u16, data: []u8) void {
     setAddressWindow(startX, startY, width, height);
-    spiMaster.writeBytes(data);
+    spiMaster.writeBytesDma(data);
 }
 
 test "arrays" {

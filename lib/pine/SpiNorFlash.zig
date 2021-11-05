@@ -32,11 +32,17 @@ pub const Identification = struct {
     capacity: u8,
 };
 
-pub fn readIdentification() void {
+pub fn readIdentification() Identification {
     var cmd = [_]u8 { 0x9F, 0, 0, 0 };
     var data = [_]u8 { 0, 0, 0, 0 };
     wakeUp();
     spiMaster.read(@intCast(u32, @ptrToInt(&cmd)), 4, @intCast(u32, @ptrToInt(&data)), 4);
+
+    var id = Identification {
+        .manufactureId = data[1],
+        .memoryType = data[2],
+        .capacity = 0
+    }; 
 
     while (true) {
     if(data[1] == 0x0B) { break; }
@@ -44,6 +50,8 @@ pub fn readIdentification() void {
     while (true) {
     if(data[2] == 0x40) { break; }
     }
+
+    return id;
 }
 
 pub fn readDataBytes(address: u24, len: u8) []u8 {
