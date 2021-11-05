@@ -103,13 +103,15 @@ pub fn writeBytesDma(self: SpiMaster, data: []const u8) void {
     self.spim.setTxdDataPtr(@ptrToInt(data.ptr));
 
     self.spim.clearEvent(.end);
-
-    pine.Gpio.clear(.{ .tp_int = true });
+    
+    //pine.Gpio.clear(.{ .tp_int = true });
+    self.chipSelect.clear();
 
     self.spim.start();
     while (self.spim.readEvent(.end) == 0) {}
 
-    pine.Gpio.set(.{ .tp_int = true });
+    //pine.Gpio.set(.{ .tp_int = true });
+    self.chipSelect.set();
 
     self.spim.clearEvent(.end);
 }
