@@ -1,20 +1,6 @@
 const std = @import("std");
 const pine = @import("lib.zig");
 
-pub const Command = enum(u8) {
-    swreset = 0x01,
-    slpout = 0x11,
-    noron = 0x13,
-    invon = 0x21,
-    dispon = 0x29,
-    caset = 0x2a,
-    raset = 0x2b,
-    ramwr = 0x2c,
-    vscrdef = 0x33,
-    colmod = 0x3a,
-    madctl = 0x36,
-    vscsad = 0x37,
-};
 
 const spiMaster = pine.SpiMaster{
     .spim = pine.Spim.spim0,
@@ -80,11 +66,48 @@ pub fn writeEnable() void {
 }
 pub fn pageProgram(address: u24, data: []u8) void {
     var cmd: u8 = 0x02;
+    writeEnable();
     spiMaster.write(cmd);
-    spiMaster.write(@intCast(u8, address >> 16));
-    spiMaster.write(@intCast(u8, address >> 8));
-    spiMaster.write(@intCast(u8, address & 0xff));
+    spiMaster.write(@truncate(u8, address >> 16));
+    spiMaster.write(@truncate(u8, address >> 8));
+    spiMaster.write(@truncate(u8, address));
     spiMaster.writeBytes(data);
+}
+pub fn sectorErase(address: u24) void {
+    var cmd: u8 = 0x20;
+    writeEnable();
+    spiMaster.write(cmd);
+    spiMaster.write(@truncate(u8, address >> 16));
+    spiMaster.write(@truncate(u8, address >> 8));
+    spiMaster.write(@truncate(u8, address));
+}
+//sectorerase
+//blockerase
+pub fn blockErase32(address: u24) void {
+    var cmd: u8 = 0x52;
+    writeEnable();
+    spiMaster.write(cmd);
+    spiMaster.write(@truncate(u8, address >> 16));
+    spiMaster.write(@truncate(u8, address >> 8));
+    spiMaster.write(@truncate(u8, address));
+}
+
+pub fn blockErase64(address: u24) void {
+    var cmd: u8 = 0xD8;
+    writeEnable();
+    spiMaster.write(cmd);
+    spiMaster.write(@truncate(u8, address >> 16));
+    spiMaster.write(@truncate(u8, address >> 8));
+    spiMaster.write(@truncate(u8, address));
+}
+//chiperase
+pub fn chipErase(address: u24) void {
+    var cmd: u8 = 0x60;
+    writeEnable();
+    spiMaster.write(cmd);
+    spiMaster.write(@truncate(u8, address >> 16));
+    spiMaster.write(@truncate(u8, address >> 8));
+    spiMaster.write(@truncate(u8, address));
 }
 
 test "semantic-analysis" {

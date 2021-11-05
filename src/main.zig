@@ -12,13 +12,13 @@ pub export fn main() void {
     //15x15 0x4444
     var data = [_]u8{ 0x44 } ** ((5 * 5) * 2);
     //Write square To display and then to memory
-    lcd.writeToScreen(0, 0, 4, 4, data[0..data.len]);
-    norFlash.writeEnable();
+    //lcd.writeToScreen(0, 0, 4, 4, data[0..data.len]);
+    
     norFlash.pageProgram(0, data[0..data.len]);
     pine.Delay.delay(1000 * pine.Delay.ms);
     //readfrom memory and write to display but next to the other square
     var recievedData = norFlash.readDataBytes(0, data.len);
-    lcd.writeToScreen(5, 5, 9, 9, recievedData);
+    lcd.writeToScreen(5, 5, 14, 14, recievedData);
 }
 
 pub export fn mainTwo() void {
