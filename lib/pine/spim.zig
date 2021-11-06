@@ -167,14 +167,14 @@ pub const Spim = enum(u32) {
         address.* = dataPtr;
     }
 
-    pub fn setRxdMaxcount(spim: Spim, count: u8) void {
+    pub fn setRxdMaxcount(spim: Spim, count: u32) void {
         const offset = 0x538;
         const address = @intToPtr(*volatile u32, @enumToInt(spim) + offset);
         const val: u32 = count;
         address.* = val;
     }
 
-    pub fn setTxdMaxcount(spim: Spim, count: u8) void {
+    pub fn setTxdMaxcount(spim: Spim, count: u32) void {
         const offset = 0x548;
         const address = @intToPtr(*volatile u32, @enumToInt(spim) + offset);
         const val: u32 = count;

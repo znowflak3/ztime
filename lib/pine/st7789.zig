@@ -108,7 +108,7 @@ pub fn init() void {
     pine.Delay.delay(1000 * pine.Delay.ms);
 
     setAddressWindow(0, 0, 29, 59);
-    var number: []u16 = pine.Font.sans_serif_30x60_get_number(2);
+    var number: []u16 = pine.Font.sans_serif_30x60_get_number(4);
 
     for(number) |value| {
         spiMaster.write(@intCast(u8, number[value] >> 8));
@@ -283,6 +283,11 @@ pub fn verticalScrollStartAddress(line: u16) void {
 }
 
 pub fn writeToScreen(startX: u16, startY: u16, width: u16, height: u16, data: []u8) void {
+    setAddressWindow(startX, startY, width, height);
+    spiMaster.writeBytes(data);
+}
+
+pub fn writeToScreenDma(startX: u16, startY: u16, width: u16, height: u16, data: []u8) void {
     setAddressWindow(startX, startY, width, height);
     spiMaster.writeBytesDma(data);
 }

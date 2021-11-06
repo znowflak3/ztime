@@ -11,12 +11,12 @@ pub export fn main() void {
     lcd.init();
 
     //15x15 0x4444
-    var data: [((5 * 5) * 2)]u8 = undefined;
+    var data: [(5 * 5) * 2]u8 = undefined;
     std.mem.set(u8, &data, id.manufactureId);
 
-    var dmaData = [_]u8{0x44} ** 256;
+    var dmaData = [_]u8{0x00} ** 250;
     //lcd.setAddressWindow(0, 0, 7, 7);
-    lcd.writeToScreen(0, 0, 7, 7, &dmaData);
+    lcd.writeToScreenDma(0, 0, 7, 7, &dmaData);
     
 
     //Write square To display and then to memory

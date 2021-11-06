@@ -98,9 +98,11 @@ pub fn writeBytes(self: SpiMaster, data: []const u8) void {
 
 pub fn writeBytesDma(self: SpiMaster, data: []const u8) void {
     
+    //var tdata = [_]u8{0x44} ** 250;
+
     self.spim.setTxdList(.arrayList);
-    self.spim.setTxdMaxcount(@intCast(u8, data.len));
-    self.spim.setTxdDataPtr(@ptrToInt(data.ptr));
+    self.spim.setTxdMaxcount(@as(u32, data.len));
+    self.spim.setTxdDataPtr(@as(u32, @ptrToInt(&data)));
 
     self.spim.clearEvent(.end);
     
