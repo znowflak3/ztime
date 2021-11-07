@@ -11,11 +11,11 @@ pub export fn main() void {
     lcd.init();
     
     //var manIdDec = pine.Font.decimal(id.manufactureId);
-
-    const tens = pine.Font.sans_serif_30x60_get_number(2);
-    lcd.writeToScreen16(30, 0, 59, 59, tens);
-    const ones = pine.Font.sans_serif_30x60_get_number(2);
-    lcd.writeToScreen16(60, 0, 89, 59, ones);
+    var ones = pine.Font.sans_serif_30x60_get_number(4);
+    
+    lcd.writeToScreen16(0, 0, 29, 59, ones);
+    lcd.writeToScreen16(30, 0, 59, 59, ones);
+    
     
     //lcd.writeToScreen(30, 0, 59, 59, std.mem.bytesAsSlice(u8, pine.Font.sans_serif_30x60_get_number(manIdDec.tens)));
     //var dmaData = [_]u8{0x44} ** 250;

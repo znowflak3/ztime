@@ -92,21 +92,19 @@ pub fn init() void {
     displayOn();
     verticalScrollDefintion(0, 320, 0);
     
-    setAddressWindow(0, 0, 29, 59);
-    const hundreds = pine.Font.sans_serif_30x60_get_number(2);
+    setAddressWindow(120, 0, 149, 59);
+    const hundreds = pine.Font.sans_serif_30x60_get_number(4);
     for (hundreds) | value | {
         spiMaster.write(@truncate(u8, value >> 8));
         spiMaster.write(@truncate(u8, value));
     }
-    setAddressWindow(30, 0, 59, 59);
-    const tens = pine.Font.sans_serif_30x60_get_number(4);
-    for (tens) | value | {
+    setAddressWindow(150, 0, 179, 59);
+    for (hundreds) | value | {
         spiMaster.write(@truncate(u8, value >> 8));
         spiMaster.write(@truncate(u8, value));
     }
-    //setAddressWindow(60, 0, 89, 59);
-    //const ones = pine.Font.sans_serif_30x60_get_number(3);
-    //writeToScreen16(60, 0, 89, 59, ones);
+
+    writeToScreen16(60, 0, 89, 59, hundreds);
     
 }
 

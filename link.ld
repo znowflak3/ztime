@@ -19,15 +19,15 @@ SECTIONS {
     *(.rodata)
     *(.rodata*)
     . = ALIGN(4);
-    __text_end = .;
-  }
+  } > FLASH
+  __text_end = .;
 
   .bss : {
     . = ALIGN(4);
     __bss_start = .;
     *(.bss)
     *(.bss*)
-    *(COMMON)
+    *(COMMO)N)
     . = ALIGN(4);
     __bss_end = .;
   } > RAM
@@ -36,14 +36,13 @@ SECTIONS {
     *(.ARM.extab* .gnu.linkonce.armextab.*)
   } > FLASH
 
-  .ARM.exidx :
-  {
+  .ARM.exidx : {
     __exidx_start = .;
     *(.ARM.exidx* .gnu.linkonce.armexidx.*)
     __exidx_end = .;
   } > FLASH
 
-  .data : AT ( __text_end ) {
+  .data : AT ( __exidx_end ) {
     . = ALIGN(4);
     __data_start = .;
     __data_load = LOADADDR(.data);
