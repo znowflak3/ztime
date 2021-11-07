@@ -54,40 +54,42 @@ pub fn readIdentification() Identification {
     return id;
 }
 
-pub fn readDataBytes(address: u24, len: u8) []u8 {
-    var cmd: []u8 = undefined;
-    cmd = cmd[0..(4 + len)];
+pub fn readDataBytes(address: u24, data: []u8) void {
+    var cmd = [_]u8{0} ** 256;
     cmd[0] = 0x03;
     cmd[1] = @intCast(u8, address >> 16);
     cmd[2] = @intCast(u8, address >> 8);
     cmd[3] = @intCast(u8, address & 0xff);
     
-    var data: []u8 = undefined;
-    data = data[0..(4 + len)];
-    spiMaster.read(@intCast(u32, @ptrToInt(&cmd)), len + 4, @intCast(u32, @ptrToInt(&data)), len + 4);
-
-    return data[4..data.len];
+    var tmp: [256]u8 = undefined;
+    const cmd_slice = cmd[0..data.len];
+    const tmp_slice = tmp[0..data.len + 4];
+    spiMaster.read(@intCast(u32, @ptrToInt(cmd_slice.ptr)), @intCast(u8, data.len + 4), @intCast(u32, @ptrToInt(tmp_slice.ptr)), @intCast(u8, data.len + 4));
+    std.mem.copy(u8, data, tmp_slice[4..]);
 }
 pub fn writeEnable() void {
     var cmd: u8 = 0x06;
     spiMaster.write(cmd);
 }
+
 pub fn pageProgram(address: u24, data: []u8) void {
     var cmd: u8 = 0x02;
     writeEnable();
-    spiMaster.write(cmd);
-    spiMaster.write(@truncate(u8, address >> 16));
-    spiMaster.write(@truncate(u8, address >> 8));
-    spiMaster.write(@truncate(u8, address));
-    spiMaster.writeBytes(data);
+    data[0] = cmd;
+    data[1] = @truncate(u8, address >> 16);
+    data[2] = @truncate(u8, address >> 8);
+    data[3] = @truncate(u8, address);
+    spiMaster.writeBytesDma(data);
 }
 pub fn sectorErase(address: u24) void {
     var cmd: u8 = 0x20;
     writeEnable();
-    spiMaster.write(cmd);
-    spiMaster.write(@truncate(u8, address >> 16));
-    spiMaster.write(@truncate(u8, address >> 8));
-    spiMaster.write(@truncate(u8, address));
+    var data: [4]u8 = undefined;
+    data[0] = cmd;
+    data[1] = @truncate(u8, address >> 16);
+    data[2] = @truncate(u8, address >> 8);
+    data[3] = @truncate(u8, address);
+    spiMaster.writeBytesDma(&data);
 }
 //sectorerase
 //blockerase

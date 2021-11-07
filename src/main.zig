@@ -9,23 +9,31 @@ pub export fn main() void {
     
     const lcd = pine.ST7789;
     lcd.init();
+    
+    //var manIdDec = pine.Font.decimal(id.manufactureId);
 
-    //15x15 0x4444
-    var data: [(5 * 5) * 2]u8 = undefined;
-    std.mem.set(u8, &data, id.manufactureId);
-
-    var dmaData = [_]u8{0x00} ** 250;
+    const tens = pine.Font.sans_serif_30x60_get_number(2);
+    lcd.writeToScreen16(30, 0, 59, 59, tens);
+    const ones = pine.Font.sans_serif_30x60_get_number(2);
+    lcd.writeToScreen16(60, 0, 89, 59, ones);
+    
+    //lcd.writeToScreen(30, 0, 59, 59, std.mem.bytesAsSlice(u8, pine.Font.sans_serif_30x60_get_number(manIdDec.tens)));
+    //var dmaData = [_]u8{0x44} ** 250;
+    //var bgData = [_]u8{0x00} ** 250;
+    //var rData: [250]u8 = undefined;
     //lcd.setAddressWindow(0, 0, 7, 7);
-    lcd.writeToScreenDma(0, 0, 7, 7, &dmaData);
+    //lcd.writeToScreenDma(0, 0, 7, 7, &dmaData);
     
 
     //Write square To display and then to memory
-    //lcd.writeToScreen(0, 0, 4, 4, &data);
-    //norFlash.pageProgram(0, &data);
-    //pine.Delay.delay(1000 * pine.Delay.ms);
+    //lcd.writeToScreenDma(0, 0, 7, 7, &bgData);
+    //norFlash.sectorErase(0);
+    //norFlash.pageProgram(0, &bgData);
+    //pine.Delay.delay(5000 * pine.Delay.ms);
     //readfrom memory and write to display but next to the other square
-    //var recievedData = norFlash.readDataBytes(0, data.len);
-    //lcd.writeToScreen(5, 5, 9, 9, recievedData);
+    //lcd.writeToScreenDma(8, 8, 16, 16, &rData);
+    //norFlash.readDataBytes(0, &rData);
+    //lcd.writeToScreenDma(0, 0, 7, 7, &rData);
 }
 
 pub export fn mainTwo() void {

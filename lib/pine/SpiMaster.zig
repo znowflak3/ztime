@@ -32,6 +32,8 @@ pub fn init(self: SpiMaster, sck: pine.Spim.PinSelect, mosi: pine.Spim.PinSelect
     self.spim.clearEvent(.started);
 
     self.spim.enable(.enabled);
+ 
+
 }
 
 pub fn prepareTx(self: SpiMaster, buffer: u32, size: u8) void {
@@ -93,6 +95,13 @@ pub fn read(self: SpiMaster, cmdAddress: u32, cSize: u8, dataAddress: u32, dSize
 pub fn writeBytes(self: SpiMaster, data: []const u8) void {
     for (data) |value| {
         self.write(value);
+    }
+}
+
+pub fn writeBytes16(self: SpiMaster, data: []const u16) void {
+    for (data) |value| {
+        self.write(@truncate(u8, value >> 8));
+        self.write(@truncate(u8, value));
     }
 }
 

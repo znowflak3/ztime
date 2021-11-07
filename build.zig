@@ -20,7 +20,7 @@ pub fn build(b: *Builder) !void {
     exe.setLinkerScriptPath(.{ .path = "link.ld" });
     exe.addOptions("options", options);
     options.addOption(bool, "use_pine_gpio", gpio_layout);
-    exe.install();
+     exe.installRawWithFormat("ztime.ihex", .hex);
 
     const bin = b.step("bin", "build binary file");
     bin.dependOn(&exe.step);

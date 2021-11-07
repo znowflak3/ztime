@@ -91,31 +91,23 @@ pub fn init() void {
 
     displayOn();
     verticalScrollDefintion(0, 320, 0);
-    setAddressWindow(0, 0, 240, 240);
-
-    var pixOnScreen: u16 = 57600;
-    const magic = [_]u8{ 0xFF, 0xFF };
     
-
-    var i: usize = 0;
-    while (true) : (i += 1) {
-        if (i == pixOnScreen) break;
-        //const a: u8 = 0xFF;
-        spiMaster.writeBytes(&magic);
-        //spiMaster.write(a
-    }
-
-    pine.Delay.delay(1000 * pine.Delay.ms);
-
     setAddressWindow(0, 0, 29, 59);
-    var number: []u16 = pine.Font.sans_serif_30x60_get_number(4);
-
-    for(number) |value| {
-        spiMaster.write(@intCast(u8, number[value] >> 8));
-        spiMaster.write(@intCast(u8, number[value] & 0xff));
+    const hundreds = pine.Font.sans_serif_30x60_get_number(2);
+    for (hundreds) | value | {
+        spiMaster.write(@truncate(u8, value >> 8));
+        spiMaster.write(@truncate(u8, value));
     }
-
-    // to loop scrool to 320 then to 0        verticalScrollStartAddress(scroll);
+    setAddressWindow(30, 0, 59, 59);
+    const tens = pine.Font.sans_serif_30x60_get_number(4);
+    for (tens) | value | {
+        spiMaster.write(@truncate(u8, value >> 8));
+        spiMaster.write(@truncate(u8, value));
+    }
+    //setAddressWindow(60, 0, 89, 59);
+    //const ones = pine.Font.sans_serif_30x60_get_number(3);
+    //writeToScreen16(60, 0, 89, 59, ones);
+    
 }
 
 pub fn setDataPin() void {
@@ -282,12 +274,17 @@ pub fn verticalScrollStartAddress(line: u16) void {
     spiMaster.write(@intCast(u8, line & 0xFF));
 }
 
-pub fn writeToScreen(startX: u16, startY: u16, width: u16, height: u16, data: []u8) void {
+pub fn writeToScreen(startX: u16, startY: u16, width: u16, height: u16, data: []const u8) void {
     setAddressWindow(startX, startY, width, height);
     spiMaster.writeBytes(data);
 }
 
-pub fn writeToScreenDma(startX: u16, startY: u16, width: u16, height: u16, data: []u8) void {
+pub fn writeToScreen16(startX: u16, startY: u16, width: u16, height: u16, data: []const u16) void {
+    setAddressWindow(startX, startY, width, height);
+    spiMaster.writeBytes16(data);
+}
+
+pub fn writeToScreenDma(startX: u16, startY: u16, width: u16, height: u16, data: []const u8) void {
     setAddressWindow(startX, startY, width, height);
     spiMaster.writeBytesDma(data);
 }
