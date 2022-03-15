@@ -91,20 +91,9 @@ pub fn init() void {
 
     displayOn();
     verticalScrollDefintion(0, 320, 0);
-    
-    setAddressWindow(120, 0, 149, 59);
-    const hundreds = pine.Font.sans_serif_30x60_get_number(4);
-    for (hundreds) | value | {
-        spiMaster.write(@truncate(u8, value >> 8));
-        spiMaster.write(@truncate(u8, value));
-    }
-    setAddressWindow(150, 0, 179, 59);
-    for (hundreds) | value | {
-        spiMaster.write(@truncate(u8, value >> 8));
-        spiMaster.write(@truncate(u8, value));
-    }
 
-    writeToScreen16(60, 0, 89, 59, hundreds);
+    const bg = [_]u8 { 0x00 } ** (240 * 320 * 2);
+    writeToScreen(0, 0, 240, 320, &bg);
     
 }
 

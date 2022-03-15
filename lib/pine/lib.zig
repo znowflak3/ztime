@@ -10,6 +10,8 @@ pub const SpiNorFlash = @import("SpiNorFlash.zig");
 pub const Delay = @import("spim.zig");
 pub const ST7789 = @import("st7789.zig");
 pub const Font = @import("sans_serif_30x60.zig");
+pub const ZFont = @import("zfont.zig");
+pub const Terminal = @import("terminal.zig");
 
 comptime {
     if (!@import("builtin").is_test) _ = @import("start.zig");

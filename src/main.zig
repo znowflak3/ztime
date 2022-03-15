@@ -2,38 +2,8 @@ const std = @import("std");
 const pine = @import("pine");
 
 pub export fn main() void {
-    const norFlash = pine.SpiNorFlash;
-    norFlash.init();
-    var id = norFlash.readIdentification();
-    _ = id;
-    
-    const lcd = pine.ST7789;
-    lcd.init();
-    
-    //var manIdDec = pine.Font.decimal(id.manufactureId);
-    var ones = pine.Font.sans_serif_30x60_get_number(4);
-    
-    lcd.writeToScreen16(0, 0, 29, 59, ones);
-    lcd.writeToScreen16(30, 0, 59, 59, ones);
-    
-    
-    //lcd.writeToScreen(30, 0, 59, 59, std.mem.bytesAsSlice(u8, pine.Font.sans_serif_30x60_get_number(manIdDec.tens)));
-    //var dmaData = [_]u8{0x44} ** 250;
-    //var bgData = [_]u8{0x00} ** 250;
-    //var rData: [250]u8 = undefined;
-    //lcd.setAddressWindow(0, 0, 7, 7);
-    //lcd.writeToScreenDma(0, 0, 7, 7, &dmaData);
-    
-
-    //Write square To display and then to memory
-    //lcd.writeToScreenDma(0, 0, 7, 7, &bgData);
-    //norFlash.sectorErase(0);
-    //norFlash.pageProgram(0, &bgData);
-    //pine.Delay.delay(5000 * pine.Delay.ms);
-    //readfrom memory and write to display but next to the other square
-    //lcd.writeToScreenDma(8, 8, 16, 16, &rData);
-    //norFlash.readDataBytes(0, &rData);
-    //lcd.writeToScreenDma(0, 0, 7, 7, &rData);
+    const terminal = pine.Terminal;
+    terminal.testOne();
 }
 
 pub export fn mainTwo() void {
