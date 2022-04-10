@@ -4,72 +4,94 @@ const pine = @import("lib.zig");
 const lcd = pine.ST7789;
 const font = pine.ZFont;
 
-var textBuffer: [256]u8 = undefined;
-var textBufferIndex: u8 = 0;
-var textBufferStart: u8 = 0;
-var textBufferEnd: u8 = 0;
-var textBufferFull: bool = false;
+const Rect = struct {
+    x: u8,
+    y: u16,
+    width: u8,
+    height: u8,
+};
 
-//should index be on last or where the new character will be added?
-pub fn addCharacter(character: u8) void {
-    textBuffer[textBufferIndex] = character;
-    if(textBufferIndex == 255){
-        textBufferIndex = 0;
-    }else{
-        textBufferIndex += 1;
-    }
-    if(textBufferEnd == 255){
-        textBufferEnd = 0;
-    }else{
-        textBufferEnd += 1;
-    }
-    if(textBufferEnd == textBufferStart){
-        textBufferStart += 1;
-    }
-    if(textBufferStart > 255){
-        textBufferStart = 0;
-    }
-    if(!textBufferFull){
-        if(textBufferIndex >= 126){
-            textBufferFull = true;
+const Cursor = struct {
+    x: u8,
+    y: u16,
+
+    pub fn next(self: *Cursor) error{EndOfScreen}!void{
+        if(self.x == 13){
+            if(self.y == 9) return error.EndOfScreen;
+            self.x = 0;
+            self.down();
+        } else {
+            self.right();
         }
     }
-}
-pub fn prevIndexOk() bool {
-    if(textBufferIndex == textBufferStart){
-        return false;
-    }
-    else{
-        return true;
-    }
-}
-pub fn moveToPrevIndex() void {
-    if(prevIndexOk())
-    {   
-        textBufferIndex = textBufferIndex -% 1; 
-        if(textBufferIndex == 0){
-            textBufferIndex = 255;
-        }else{
-            textBufferIndex -= 1;
+    pub fn prev(self: *Cursor) error{StartOfScreen}!void{
+        if(self.x == 0){
+            if(self.y == 0) return error.StartOfScreen;
+            self.x = 13;
+            self.up();
+        } else {
+            self.left();
         }
-        
+    }
+
+    pub fn rect(self: *Cursor) Rect {
+        return .{
+            .x = self.x * 17,
+            .y = self.y * 25,
+            .height = 17,
+            .width = 25
+        };
+        }
+
+    pub fn up(self: *Cursor) void{
+        self.y -= 1;
+    }
+
+    pub fn down(self: *Cursor) void{
+        self.y += 1;
+    }
+
+    pub fn left(self: *Cursor) void{
+        self.x -= 1;
+    }
+
+    pub fn right(self: *Cursor) void{
+        self.x += 1;
+    }
+};
+
+var cursor: Cursor = .{
+    .x = 0,
+    .y = 0
+};
+
+pub fn writeToScreen(rect: Rect, char: []const u8) void {
+     lcd.writeToScreen(rect.x, rect.y, rect.width, rect.height, char);
+}
+
+pub fn scrollDown() error{EndOfPhysicalScreen} !void {
+
+}
+
+
+
+pub fn writeChar(char: u8) !void {
+    var img = font.getCharImage(char);
+    const rect = cursor.rect();
+    writeToScreen(rect, img);
+    try cursor.next();
+
+}
+
+pub fn writeString(string: []const u8) !void {
+    for(string) |char| {
+        writeChar(char) catch {
+            try scrollDown();
+        };
+
     }
 }
-pub fn moveToChosenIndexOk(val: u8) bool{
-    var newIndex: u8 = textBufferIndex -% val;
-    if(newIndex >= textBufferStart and textBufferStart <= textBufferIndex){
-        return true;
-    }else {
-        return false;
-    }
-}
-pub fn moveToChosenIndex(val: u8) void{
-    //if buffer is full the end will stop to exist andre
-    var newIndex: u8 = textBufferIndex -% val;
-    if(moveToChosenIndexOk(newIndex)){
-        textBufferIndex = newIndex;
-    }
-}
+
 
 var screenIndex: u8 = 0; //index of character on the row
 var screenXIndex: u8 = 0; //index where first pixel on x axis is
@@ -81,57 +103,14 @@ const screenXMax: u8 = 13; //max undex for character on a row
 
 
 pub fn testOne() void{
-    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXZ0123456789:()%";
-    const str = "WHATWILLHAPPENNOW:FUTUREWILLTELL";
     init();
 
-    //writing alot just to see if screen will scroll at the end.
-    draw(characters);
-    draw(characters);
-    draw(characters);
-    draw(str);
-    draw(characters);
-    draw(characters);
-    draw(str);
-    pine.Delay.delay(1000 * pine.Delay.ms);
+    writeString("(HELLOWORLD)01") catch {
+        
+    };
+}
 
-    var txt: [1]u8 = undefined;
-    draw("SI:");
-    var si = decimal(screenIndex);
-    txt[0] = numberToAscii(si.hundreds);
-    draw(&txt);
-    txt[0] = numberToAscii(si.tens);
-    draw(&txt);
-    txt[0] = numberToAscii(si.ones);
-    draw(&txt);
-    draw("TBI:");
-    si = decimal(textBufferIndex);
-    txt[0] = numberToAscii(si.hundreds);
-    draw(&txt);
-    txt[0] = numberToAscii(si.tens);
-    draw(&txt);
-    txt[0] = numberToAscii(si.ones);
-    draw(&txt);
-
-    //scrollUp(1);
-    draw("TBI:");
-    si = decimal(textBufferIndex);
-    txt[0] = numberToAscii(si.hundreds);
-    draw(&txt);
-    txt[0] = numberToAscii(si.tens);
-    draw(&txt);
-    txt[0] = numberToAscii(si.ones);
-    draw(&txt);
-
-    draw("HELLO");
-    
-    
-} 
 pub fn init() void {
-    textBufferIndex = 0;
-    textBufferStart = 0;
-    textBufferEnd = 0;
-    textBufferFull = false;
 
     screenIndex = 0;
     screenXIndex = 0;
@@ -144,7 +123,7 @@ pub fn init() void {
 pub fn draw(text: []const u8) void{
     for(text)|value|{
         //if screenbuffer > something scrolldown and write
-        addCharacter(value);
+        //addCharacter(value);
         //if writetoscreen will write past 320
         if(screenYIndex >= 294){
             var pixAtEnd: u16 = 320 - screenYIndex;
@@ -165,7 +144,7 @@ pub fn draw(text: []const u8) void{
         screenXIndex = 0;
         screenYIndex += 25;
         screenIndex = 0;
-        if(textBufferFull){
+        if(true){
 
             
             if(screenYIndex >= 320){
@@ -187,29 +166,21 @@ pub fn draw(text: []const u8) void{
     }
 
 }
-pub fn scrollUp(rows: u16) void {
-    //move back (screenIndex + thescreen) on textbufferindex
-    var colARow: u8 = screenIndex + 14;
-    var i: u8 = 0;
-    while(true){
-        if(i >= colARow) {break;}
-        moveToPrevIndex();
-        i += 1;
-    }
-    //write the the past row and then scroll up
-    _ = rows;
-    //const pixels = &[_]u8{ 0x00 } ** (26 * 240 * 2);
-    //lcd.writeToScreen(0, screenYIndex +26, 240, screenYIndex + 51, pixels);
-    //lcd.verticalScrollStartAddress(rows);
-}
-pub fn scrollDown(pix: u16) void {
+
+pub fn scrollDown2(pix: u16) void {
     const pixels = &[_]u8{ 0x00 } ** (50 * 240 * 2);
     //if scrolling over the end to beginning of the screenbuffer
     if(screenYIndex >= 275 and screenYIndex < 295){//268
-        var pixAtEnd: u16 = 320 - screenYIndex + 25;
+        var pixAtEnd: u16 = 320 - screenYIndex - 25;
         var pixAtStart: u16 = 25 - pixAtEnd;
         
-        lcd.writeToScreen(0, screenYIndex + 25, 240, 320, pixels); 
+        //var txt: [1]u8 = undefined;
+        //var si = decimal(screenYIndex);
+        //txt[0] = numberToAscii(si.hundreds);    
+
+        //lcd.writeToScreen(100, 100, 117, 125, font.getCharImage(txt[0]));
+        
+        lcd.writeToScreen(0, screenYIndex + 25, 240, 320, pixels[0..(pixAtEnd * 240 * 2)]); 
         lcd.writeToScreen(0, 0, 240, pixAtStart, pixels);     
     }
     else{
@@ -217,22 +188,21 @@ pub fn scrollDown(pix: u16) void {
     }
     lcd.verticalScrollStartAddress(pix);
 }
-pub fn scrollDownAndWrite() void {}
 //number structs
 const Decimal = struct{
-    hundreds: u8,
-    tens: u8,
-    ones: u8
+    hundreds: u16,
+    tens: u16,
+    ones: u16
 };
 
-pub fn decimal(x: u8) Decimal {
+pub fn decimal(x: u16) Decimal {
     return .{
         .hundreds = x / 100,
         .tens = (x / 10) % 10,
         .ones = x % 10,
     };
 }
-pub fn numberToAscii(num: u8) u8 {
+pub fn numberToAscii(num: u16) u8 {
     switch(num){
     0 => return '0',
     1 => return '1',
